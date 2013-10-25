@@ -6,7 +6,16 @@ package org.bebrb.data;
  */
 public interface Attribute {
 	/**
-	 * Типы атрибутов в справочнике 
+	 * Типы атрибутов 
+	 * <ul>
+	 * <li> {@link #Integer} - целое число (32 разряда)
+	 * <li> {@link #String} - строка. Маскимальное кол-во символов в {@link Attribute#getMaxSizeChar()} 
+	 * <li> {@link #Double} - число с плавающей точкой (32 разряда)
+	 * <li> {@link #Date} - дата/время
+	 * <li> {@link #Image} - вариант бинарного объекта {@link #Blob}, который может быть интерпретирован как изображение
+	 * <li> {@link #Text} - вариант бинарного объекта {@link #Blob}, который может быть интерпретирован как текст
+	 * <li> {@link #Blob} - бинарный объект
+	 * </ul>
 	 */
 	public static enum Type{Integer, String, Currency, Double, Date, Image, Text, Blob};
 	
@@ -50,4 +59,12 @@ public interface Attribute {
 	 * @return true если атрибут обязателен
 	 */
 	public boolean isMandatory();
+	
+	/**
+	 * Возвращает максимальное кол-во символов, которые можно разместить в атрибуте. Имеет смысл для атрибута типа {@link #String}.
+	 * Для остальных типов возвращает 0. 
+	 * @return размер данных в символах
+	 */
+	public int getMaxSizeChar();
+	
 }

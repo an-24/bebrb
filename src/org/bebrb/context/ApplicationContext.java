@@ -6,6 +6,7 @@ package org.bebrb.context;
 import java.util.Date;
 import java.util.Set;
 
+import org.bebrb.data.DataSource;
 import org.bebrb.forms.Form;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.user.User;
@@ -77,6 +78,14 @@ public interface ApplicationContext  extends Context {
 	 * —писок используемых справочников
 	 * @return
 	 */
-	public Set<ReferenceBook> getReferences(); 
+	public Set<ReferenceBook> getReferences();
+	
+	
+	/**
+	 * —писок используемых источников данных. —писок источников содержит и источники,
+	 * представл€ющие справочники.
+	 * @return
+	 */
+	public Set<DataSource> getDataSources(); 
 
 }
