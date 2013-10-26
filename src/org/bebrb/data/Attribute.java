@@ -10,6 +10,7 @@ public interface Attribute {
 	 * <ul>
 	 * <li> {@link #Integer} - целое число (32 разряда)
 	 * <li> {@link #String} - строка. Маскимальное кол-во символов в {@link Attribute#getMaxSizeChar()} 
+	 * <li> {@link #Currency} - число с фиксированной точностью в два знака после запятой
 	 * <li> {@link #Double} - число с плавающей точкой (32 разряда)
 	 * <li> {@link #Date} - дата/время
 	 * <li> {@link #Image} - вариант бинарного объекта {@link #Blob}, который может быть интерпретирован как изображение
@@ -24,7 +25,7 @@ public interface Attribute {
 	 * Источник данных в котором используется данный атрибут
 	 * @return  не может быть null
 	 */
-	public String getDataSourceId();
+	public DataSource getDataSource();
 	
 	/**
 	 * Имя атрибута

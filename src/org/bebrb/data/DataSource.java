@@ -91,19 +91,19 @@ public interface DataSource {
 	 * Поиск записи по значениям атрибутов.
 	 * @param values значения атрибутов по которым нужно искать 
 	 * @param onServer если false, то поиск осуществляется в пакетах полученных с сервера. Иначе по всем пакетам источника (может потребоваться удаленный вызов)
-	 * @return null если запись не найдена, иначе искомая запись
+	 * @return null если не найдено ни одной записи, иначе список искомых записей
 	 * @throws Exception
 	 */
-	public Record findRecord(Map<Attribute,Object> values, boolean onServer) throws Exception;
+	public List<Record> findRecord(Map<Attribute,Object> values, boolean onServer) throws Exception;
 	
 	/**
 	 * Поиск записи по значениям атрибутов. Поиск осуществляется в пакетах полученных с сервера
 	 * @param values значения атрибутов по которым нужно искать 
-	 * @return null если запись не найдена, иначе искомая запись
+	 * @return null если не найдено ни одной записи, иначе список искомых записей
 	 * @throws Exception
 	 * @see {@link #findRecord(Map, boolean)}
 	 */
-	public Record findRecord(Map<Attribute,Object> values) throws Exception;
+	public List<Record> findRecord(Map<Attribute,Object> values) throws Exception;
 	
 	
 	/**
@@ -120,13 +120,21 @@ public interface DataSource {
 	/**
 	 * Создает новую запись c типом {@link Record.Type#Buffer} для добавления.  
 	 * @return не может быть null
-	 * @throws Exception если режим редактирования недоступен
+	 * @throws Exception если режим добавления недоступен
 	 * @see #isReadOnly()
 	 * @see #isCanAdd()
 	 * 
 	 */
 	public Record add() throws Exception;
 	
+	/**
+	 * Функция работает как {@link #add()}. Разница в том, что данные из r копируются в
+	 * резульирующую запись
+	 * @param r копируемая запись
+	 * @return не может быть null
+	 * @throws Exception  если режим добавления недоступен
+	 */
+	public Record add(Record r) throws Exception;
 	
 	/**
 	 * Создает запись c типом {@link Record.Type#Buffer} для удаления. Данные r копируются в возвращаемую запись 
@@ -149,7 +157,7 @@ public interface DataSource {
 
 	/**
 	 * Попытка удалить множество записей. На основании каждой из них создается запись c типом {@link Record.Type#Buffer} для удаления. Затем вызывается {@link Record#commit()}.
-	 * Используется стандартный контроль ввода. Удаление происходит до первой ошибки. Есл небходимо продолжать операцию используйте {@link #delete(List, OnValidate)} }    
+	 * Используется стандартный контроль ввода. Удаление происходит до первой ошибки. Если небходимо продолжать операцию используйте {@link #delete(List, OnValidate)} }    
 	 * @param records список записей
 	 * @throws Exception если режим удаления недоступен или данные не прошли проверку
 	 */

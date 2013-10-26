@@ -1,5 +1,7 @@
 package org.bebrb.data;
 
+import java.util.Set;
+
 /**
  * Интерфейс контроля данных 
  * @author Andrey Klyuev
@@ -12,6 +14,6 @@ public interface OnValidate {
 	 * @param r запись которая требует проверки. Тип записи - {@link Record.Type#Buffer} . Тип операции можно узнать из {@link Record#getMode()}
 	 * @return null если ошибок нет
 	 */
-	public InvalidData validate(Record r);
+	public Set<InvalidData> validate(Record r);
 
 }

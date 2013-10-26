@@ -79,7 +79,7 @@ public interface Record {
 	
 	/**
 	 * Возвращает пакет которому принадлежит запись
-	 * @return может быть null, если запись находится в режиме буфера
+	 * @return может быть null, если запись находится в режиме {@link Mode#Add}
 	 */
 	public DataPage getDataPage();
 	

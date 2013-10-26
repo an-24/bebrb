@@ -11,10 +11,10 @@ public class InvalidData {
 	
 	private String message;
 	private Attribute attribute;
-	private Control control;
+	private Control<?> control;
 	
 	
-	public InvalidData(String message, Attribute attribute, Control control) {
+	public InvalidData(String message, Attribute attribute, Control<?> control) {
 		super();
 		this.message = message;
 		this.attribute = attribute;
@@ -35,7 +35,7 @@ public class InvalidData {
 	public Attribute getAttribute() {
 		return attribute;
 	}
-	public Control getControl() {
+	public Control<?> getControl() {
 		return control;
 	}
 
