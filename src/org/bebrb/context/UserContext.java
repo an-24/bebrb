@@ -12,8 +12,8 @@ import org.bebrb.user.User;
 public interface UserContext extends Context {
 	
 	/**
-	 * Возвращает пользователя
-	 * @return не может быть null
+	 * Р’РѕР·РІСЂР°С‰Р°РµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	 * @return РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ null
 	 */
 	public User getUser();
 

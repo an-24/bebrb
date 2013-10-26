@@ -11,8 +11,8 @@ package org.bebrb.context;
 public interface Context {
 	
 	/**
-	 * Возвращает объект с конфигурацией
-	 * @return не может быть null
+	 * Р’РѕР·РІСЂР°С‰Р°РµС‚ РѕР±СЉРµРєС‚ СЃ РєРѕРЅС„РёРіСѓСЂР°С†РёРµР№
+	 * @return РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ null
 	 */
 	public Config getConfig();
 

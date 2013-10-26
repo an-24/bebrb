@@ -3,7 +3,7 @@ package org.bebrb.data;
 import org.bebrb.forms.Control;
 
 /**
- * Информация об ошибке ввода 
+ * РРЅС„РѕСЂРјР°С†РёСЏ РѕР± РѕС€РёР±РєРµ РІРІРѕРґР° 
  * @author Andrey Klyuev
  */
 
