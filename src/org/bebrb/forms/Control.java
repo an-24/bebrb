@@ -3,10 +3,7 @@
  */
 package org.bebrb.forms;
 
-import java.util.List;
-
 import org.bebrb.data.Field;
-import org.bebrb.data.OnValidateField;
 import org.bebrb.utils.Rect;
 
 /**
@@ -56,12 +53,6 @@ public interface Control<T> {
 	public boolean isModify();
 	
 	/**
-	 * Тест на возможность управления группой элементов
-	 * @return true если элемент может управлять группой
-	 */
-	public boolean isGroupManager();
-	
-	/**
 	 * Тест на возможность передачи фокуса ввода любым способом 
 	 * @return true если фокус передать можно
 	 */
@@ -92,43 +83,10 @@ public interface Control<T> {
 	 */
 	public Form getForm();
 	/**
-	 * Элемент управления который является группирующим для данного элемента
-	 * @return равен null для элементов которые располагаются прямо на форме
-	 */
-	public Control<?> getParent();
-	/**
-	 * Список элементов для который данный элемент является группирующим
-	 * @return может быть null для элементов, которые не могут быть группирующими
-	 */
-	public List<Control<?>> getChildren();
-	/**
-	 * Добавляем элекмент в группу с которой ассоциирован данный элемент управления. 
-	 * @param control новый элемент группы. Не может быть null
-	 * @exception Exception если данный элемент не может быть группирующим
-	 * @see #isGroupManager()
-	 */
-	public void addChild(Control<?> control) throws Exception;
-	/**
-	 * Удаляет элемент из группы
-	 * @param control удаляемый элемент группы. Не может быть null
-	 */
-	public void removeChild(Control<?> control);
-	/**
 	 * Границы элемента относительно {@link #getParent()} или {@link #getForm()}
 	 * @return не может быть null
 	 */
 	public Rect getBounds();
-	/**
-	 * Объект контроля ввода данных 
-	 * @return может быть null
-	 */
-	public OnValidateField<T> getValidator();
-	
-	/**
-	 * Устанавливает объект контроля ввода данных.  
-	 * @param value может быть null. В этом сучае контроль снимается
-	 */
-	public void setValidator(OnValidateField<T> value);
 	
 
 }
