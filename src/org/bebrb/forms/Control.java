@@ -18,7 +18,7 @@ public interface Control<T> {
 	public String getName();
 	/**
 	 * Альтернативное имя элемента управления
-	 * @return  не может быть null или пустым
+	 * @return может быть null
 	 */
 	public String getTag();
 	/**
@@ -76,6 +76,17 @@ public interface Control<T> {
 	 * @return может быть null элемент управления не предназначен для редактирования поля 
 	 */
 	public Field<T> getField();
+	
+	/**
+	 * Введенные данные
+	 * @return может быть null
+	 */
+	public T getValue();
+	/**
+	 * Установить данные
+	 * @param value може быть null
+	 */
+	public void setValue(T value);
 	
 	/**
 	 * Форма ввода которой принадлежит элемент управления
