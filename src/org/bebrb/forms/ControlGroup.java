@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Группирующий элемент 
  */
-public interface ControlGroup {
+public interface ControlGroup extends Control<Void> {
 	/**
 	 * Элемент управления который является группирующим для данного элемента
 	 * @return равен null для элементов которые располагаются прямо на форме

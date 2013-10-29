@@ -4,6 +4,8 @@
 package org.bebrb.forms;
 
 import org.bebrb.data.Field;
+import org.bebrb.utils.Align;
+import org.bebrb.utils.Padding;
 import org.bebrb.utils.Rect;
 
 /**
@@ -98,6 +100,24 @@ public interface Control<T> {
 	 * @return не может быть null
 	 */
 	public Rect getBounds();
-	
-
+	/**
+	 * Отступ от границы
+	 * @return  не может быть null
+	 */
+	public Padding getPadding();
+	/**
+	 * Горизонтальное выравнивание в прямоугольнике {@link #getBounds()} с учетом {@link #getPadding()}
+	 * @return не может быть null
+	 */
+	public Align.Horizontal getHorizontalAlign();
+	/**
+	 * Вертикальное выравнивание в прямоугольнике {@link #getBounds()} с учетом {@link #getPadding()}
+	 * @return не может быть null
+	 */
+	public Align.Vertical getVerticalAlign();
+	/**
+	 * Стыковка элемента с границами {@link ControlGroup#getParent()}
+	 * @return  не может быть null
+	 */
+	public Align.Docking getDocking();
 }
