@@ -10,15 +10,16 @@ public interface Attribute {
 	 * <ul>
 	 * <li> {@link #Integer} - целое число (32 разряда)
 	 * <li> {@link #String} - строка. Маскимальное кол-во символов в {@link Attribute#getMaxSizeChar()} 
-	 * <li> {@link #Currency} - число с фиксированной точностью в два знака после запятой
+	 * <li> {@link #Money} - число с фиксированной точностью в два знака после запятой
 	 * <li> {@link #Double} - число с плавающей точкой (32 разряда)
 	 * <li> {@link #Date} - дата/время
 	 * <li> {@link #Image} - вариант бинарного объекта {@link #Blob}, который может быть интерпретирован как изображение
 	 * <li> {@link #Text} - вариант бинарного объекта {@link #Blob}, который может быть интерпретирован как текст
 	 * <li> {@link #Blob} - бинарный объект
+	 * <li> {@link #Boolean} - булево значение
 	 * </ul>
 	 */
-	public static enum Type{Integer, String, Currency, Double, Date, Image, Text, Blob};
+	public static enum Type{Integer, String, Money, Double, Date, Image, Text, Blob, Boolean};
 	
 	
 	/**

@@ -3,6 +3,7 @@
  */
 package org.bebrb.forms;
 
+import org.bebrb.data.Attribute;
 import org.bebrb.data.Field;
 import org.bebrb.utils.Align;
 import org.bebrb.utils.Padding;
@@ -78,6 +79,13 @@ public interface Control<T> {
 	 * @return может быть null элемент управления не предназначен для редактирования поля 
 	 */
 	public Field<T> getField();
+	
+	/**
+	 * Тест на обязательность ввода. В случае, если {@link #getField()} не равен null 
+	 * метод должен возвращать значение {@link Attribute#isMandatory()} атрибута, связанного с этим полем
+	 * @return true означает обязательность ввода данных
+	 */
+	public boolean isRequired();
 	
 	/**
 	 * Введенные данные

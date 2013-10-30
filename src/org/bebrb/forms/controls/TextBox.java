@@ -2,6 +2,9 @@ package org.bebrb.forms.controls;
 
 import org.bebrb.forms.ControlGroup;
 
+/**
+ * Поле ввода для строки
+ */
 public interface TextBox extends ControlGroup<String> {
 	/**
 	 * Максимальная длина в символах
