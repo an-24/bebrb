@@ -17,12 +17,12 @@ public interface ReferenceBookMetaData {
 	/**
 	 * Типы справочников 
 	 * <ul>
-	 *  <li> {@link ReferenceType#Discriminator} - простой справочник, без историчности. Ключ неизменен. Представление единственное. 
+	 *  <li> {@link ReferenceType#Simple} - простой справочник, без историчности. Ключ неизменен. Представление единственное. 
 	 *  <li> {@link ReferenceType#Linear} - плоский линейный справочник с историчностью. Поддерживаются мастер данные. Наличие представлений.
 	 *  <li> {@link ReferenceType#Hierarchy} - иерархический справочник с историчностью. Поддерживаются мастер данные. Наличие представлений. 
 	 * </ul>
 	 */
-	public static enum ReferenceType {Discriminator, Linear, Hierarchy};
+	public static enum ReferenceType {Simple, Linear, Hierarchy};
 	
 	/**
 	 * Тест на историчность
