@@ -4,17 +4,22 @@
 package org.bebrb.forms.controls;
 
 import org.bebrb.forms.Action;
-import org.bebrb.forms.Control;
+import org.bebrb.forms.ControlGroup;
 
 /**
- * Кнопка команды
+ * Кнопка команды с рисунком
  */
-public interface Button extends Control<Void> {
+public interface ImageButton extends ControlGroup<Void> {
 	/**
 	 * Надпись на кнопке
 	 * @return не может быть null
 	 */
-	public String getCaption();
+	public Label getLabel();
+	/**
+	 * Картинки на кнопке. 
+	 * @return  может быть null
+	 */
+	public ImageBox getImage();
 	/**
 	 * Действие
 	 * @return может быть null
@@ -25,5 +30,4 @@ public interface Button extends Control<Void> {
 	 * @return true означает то, что кнопка запоминает свое состояние после нажатия
 	 */
 	public boolean isHoldState();
-
 }
