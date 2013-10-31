@@ -11,7 +11,6 @@ import org.bebrb.utils.Rect;
 
 /**
  * Элемент управления на форме
- * @author Andrey Klyuev
  */
 public interface Control<T> {
 	/**
@@ -109,6 +108,26 @@ public interface Control<T> {
 	 */
 	public Rect getBounds();
 	/**
+	 * Минимальная ширина элемента
+	 * @return по умолчанию 0
+	 */
+	public int getMinWidth();
+	/**
+	 * Минимальная высота элемента
+	 * @return по умолчанию 0
+	 */
+	public int getMinHeight();
+	/**
+	 * Максимальная ширина элемента
+	 * @return по умолчанию 0
+	 */
+	public int getMaxWidth();
+	/**
+	 * Максимальная высота элемента
+	 * @return по умолчанию 0
+	 */
+	public int getMaxHeight();
+	/**
 	 * Отступ от границы
 	 * @return  не может быть null
 	 */
@@ -134,4 +153,5 @@ public interface Control<T> {
 	 * @return true означает, что размеры компонента подбираются для отображения всего содержимого
 	 */
 	public boolean isAutoSize();
+	
 }
