@@ -8,8 +8,6 @@ import java.util.Map;
 
 /**
  * Источник данных
- * 
- * @author Andrey Klyuev
  *
  */
 public interface DataSource {

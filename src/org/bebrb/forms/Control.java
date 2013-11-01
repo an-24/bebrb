@@ -3,6 +3,8 @@
  */
 package org.bebrb.forms;
 
+import java.util.List;
+
 import org.bebrb.data.Attribute;
 import org.bebrb.data.Field;
 import org.bebrb.utils.Align;
@@ -153,5 +155,11 @@ public interface Control<T> {
 	 * @return true означает, что размеры компонента подбираются для отображения всего содержимого
 	 */
 	public boolean isAutoSize();
+	
+	/**
+	 * Список действий в контексте элемента управления
+	 * @return не может быть null
+	 */
+	public List<Action> getContextActions();
 	
 }

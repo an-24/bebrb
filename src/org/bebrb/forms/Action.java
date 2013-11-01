@@ -1,5 +1,7 @@
 package org.bebrb.forms;
 
+import java.util.Map;
+
 /**
  * Действие с именем
  */
@@ -22,7 +24,8 @@ public interface Action {
 	/**
 	 * Выполнение действия
 	 * @param control элемент управления, выполняющий действие
+	 * @param params ноль или более аргументов-параметров
 	 */
-	public void execute(Control<?> control) throws Exception;
+	public void execute(Control<?> control, Object ... params) throws Exception;
 
 }

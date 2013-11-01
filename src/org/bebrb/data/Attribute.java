@@ -33,6 +33,13 @@ public interface Attribute {
 	 * @return  не может быть null
 	 */
 	public String getName();
+	
+	/**
+	 * Имя атрибута для пользователя
+	 * @return не может быть null. Когда явно не назначен равно {@link #getName()}
+	 */
+	public String getCaption();
+	
 	/**
 	 * Тип атрибута
 	 * @return  не может быть null
@@ -49,7 +56,6 @@ public interface Attribute {
 	 * @return возвращает атрибут на который ссылается данный атрибут. Может быть null, если атрибут не является внешним ключем
 	 */
 	public Attribute getForeignKey();
-	
 	/**
 	 * Видимость атрибута.
 	 * @return true если атрибут видим
