@@ -10,7 +10,6 @@ import org.bebrb.data.Attribute;
 
 /**
  * Информация о структуре и полях справочника
- * @author Andrey Klyuev
  *
  */
 public interface ReferenceBookMetaData {
@@ -32,9 +31,15 @@ public interface ReferenceBookMetaData {
 	
 	/**
 	 * Уникальный идентификатор справочника
-	 * @return  не может быть null
+	 * @return не может быть null
 	 */
 	public String getReferenceId();
+	
+	/**
+	 * Имя справочника
+	 * @return не может быть null
+	 */
+	public String getReferenceTitle();
 	
 	/**
 	 * Тип справочника. Возможны следующие варианты
@@ -71,5 +76,11 @@ public interface ReferenceBookMetaData {
 	 * @return является null везде кроме справочников с типом {@link ReferenceType#Hierarchy} 
 	 */
 	public Attribute getParentKey();
+	
+	/**
+	 * В случае иерархического справочника определяет возможность выбора папки
+	 * @return не имеет значения везде кроме справочников с типом {@link ReferenceType#Hierarchy} 
+	 */
+	public boolean isCanChoiseFolder();
 
 }

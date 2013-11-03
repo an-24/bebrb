@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * Запись с данными. Запись состоит из полей
- * @author Andrey Klyuev
  */
 public interface Record {
 	
@@ -84,10 +83,21 @@ public interface Record {
 	public DataPage getDataPage();
 	
 	/**
+	 * Возвращает источник данных
+	 * @return никогда не null
+	 */
+	public DataSource getDataSource(); 
+	
+	/**
 	 * Фиксируются изменения в источнике данных. Возможна отправка на сервер
 	 * @exception Exception в случае, если данные не прошли проверку
 	 * 
 	 */
 	public void commit() throws Exception;
+	
+	/**
+	 * Отмена изменений.
+	 */
+	public void cancel();
 	
 }

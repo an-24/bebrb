@@ -4,7 +4,6 @@ import org.bebrb.forms.Control;
 
 /**
  * Информация об ошибке ввода 
- * @author Andrey Klyuev
  */
 
 public class InvalidData {

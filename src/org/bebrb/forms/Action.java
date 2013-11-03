@@ -1,7 +1,5 @@
 package org.bebrb.forms;
 
-import java.util.Map;
-
 /**
  * Действие с именем
  */

@@ -167,7 +167,6 @@ public interface DataSource {
 	 */
 	public void addValidator(OnValidate onvalidate);
 	
-	
 	/**
 	 * Удалить контроль ввода данных 
 	 * @param onvalidate интерфейс для контроля ввода

@@ -96,7 +96,7 @@ public interface DataGrid extends ControlGroup<Void> {
 		 * качестве второго аргумента
 		 * @param action не может быть null
 		 */
-		public void execute(Action action);
+		public void execute(Action action) throws Exception;
 	}
 	/**
 	 * Управление текущей выбранной записью

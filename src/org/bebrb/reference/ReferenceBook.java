@@ -7,7 +7,6 @@ import java.util.Map;
 
 /**
  * Справочник
- * @author Andrey Klyuev
  *
  */
 public interface ReferenceBook {

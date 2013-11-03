@@ -6,6 +6,8 @@ package org.bebrb.forms.controls;
 import org.bebrb.data.Record;
 import org.bebrb.forms.ControlGroup;
 import org.bebrb.reference.ReferenceBook;
+import org.bebrb.reference.ReferenceBookMetaData;
+import org.bebrb.reference.View;
 import org.bebrb.reference.ReferenceBookMetaData.ReferenceType;
 
 /**
@@ -13,7 +15,8 @@ import org.bebrb.reference.ReferenceBookMetaData.ReferenceType;
  */
 public interface SimpleReferenceCombo extends ControlGroup<Integer> {
 	/**
-	 * Метка для поля ввода
+	 * Метка для поля ввода. Значение по умолчанию присваивается значению {@link ReferenceBookMetaData#getReferenceTitle()}
+	 * [{@link View#getTitle()}]
 	 * @return не может быть null
 	 */
 	public Label getLabel();
@@ -27,5 +30,5 @@ public interface SimpleReferenceCombo extends ControlGroup<Integer> {
 	 * @return может быть null
 	 */
 	public Record getSelectedRecord();
-
+	
 }
