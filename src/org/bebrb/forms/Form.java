@@ -49,16 +49,14 @@ public interface Form {
 	/**
 	 * Открывает форму в модальном варианте поверх текущей вкладки. Режим формы определяется из {@link Record#getMode()}
 	 * @param r запись с которой ассоциирована форма ввода
-	 * @return true если пользователь сделад положительный выбор. Если пользователь отменил операцию
-	 * возвращается false
+	 * Если пользователь сделал положительный выбор вызывается {@link OnModalResult#onResult(Form)}.
 	 */
-	public boolean openForResult(Record r);
+	public boolean openForResult(Record r, OnModalResult result);
 	/**
 	 * Открывает форму в модальном варианте поверх текущей вкладки.
-	 * @return true если пользователь сделад положительный выбор. Если пользователь отменил операцию
-	 * возвращается false
+	 * Если пользователь сделал положительный выбор вызывается {@link OnModalResult#onResult(Form)}.
 	 */
-	public boolean openForResult();
+	public void openForResult(OnModalResult result);
 	/**
 	 * Закрывает форму в режиме отмены операции.
 	 * @param withoutQuestion если true, то измененения в данных не проверяются, пользователь не предупреждается 

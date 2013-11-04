@@ -135,12 +135,14 @@ public interface Control<T> {
 	 */
 	public Padding getPadding();
 	/**
-	 * Горизонтальное выравнивание в прямоугольнике {@link #getBounds()} с учетом {@link #getPadding()}
+	 * Горизонтальное выравнивание в прямоугольнике {@link #getBounds()} 
+	 * с учетом {@link #getPadding()}
 	 * @return не может быть null
 	 */
 	public Align.Horizontal getHorizontalAlign();
 	/**
-	 * Вертикальное выравнивание в прямоугольнике {@link #getBounds()} с учетом {@link #getPadding()}
+	 * Вертикальное выравнивание в прямоугольнике {@link #getBounds()} 
+	 * с учетом {@link #getPadding()}
 	 * @return не может быть null
 	 */
 	public Align.Vertical getVerticalAlign();
