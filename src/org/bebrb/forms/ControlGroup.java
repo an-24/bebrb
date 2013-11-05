@@ -2,6 +2,8 @@ package org.bebrb.forms;
 
 import java.util.List;
 
+import org.bebrb.utils.Align;
+
 /**
  * Группирующий элемент 
  */
@@ -39,5 +41,17 @@ public interface ControlGroup<T> extends Control<T> {
 	 * @return true означает запрет на изменение состава дочерних элементов
 	 */
 	public boolean isLockedChildren();
+	
+	/**
+	 * В контексте группирующего элемента выравнивание затрагивает элементы группы {@link #getChildren()}
+	 * @return не может быть null
+	 */
+	public Align.Horizontal getHorizontalAlign();
+	/**
+	 * В контексте группирующего элемента выравнивание затрагивает элементы группы {@link #getChildren()}
+	 * @return не может быть null
+	 */
+	public Align.Vertical getVerticalAlign();
+	
 
 }
