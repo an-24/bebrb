@@ -1,3 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/ds" xmlns:tns="http://www.example.org/ds" elementFormDefault="qualified">
+
+    <element name="datasources">
+    	<complexType>
+    		<sequence maxOccurs="unbounded">
+    			<element ref="tns:datasource" maxOccurs="unbounded" minOccurs="0"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+
+    <element name="datasource">
+    	<complexType>
+    		<sequence>
+    			<element name="sql" type="tns:cdata" maxOccurs="1"
+    				minOccurs="1">
+    			</element>
+    		</sequence>
+    		<attribute name="name" type="QName"></attribute>
+    	</complexType>
+    </element>
+
+    <simpleType name="cdata">
+    	<restriction base="string">
+		<pattern value='<![CDATA[]]'/>
+    	</restriction>
+    </simpleType>
 </schema>
