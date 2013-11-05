@@ -25,5 +25,10 @@ public interface Button extends Control<Void> {
 	 * @return true означает то, что кнопка запоминает свое состояние после нажатия
 	 */
 	public boolean isHoldState();
+	/**
+	 * Тест на нажатие кнопки
+	 * @return true если кнопка нажата. Если {@link #isHoldState()} является false возвращает всегда false.
+	 */
+	public boolean isDown();
 
 }
