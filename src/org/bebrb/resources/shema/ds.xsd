@@ -10,10 +10,6 @@
 		   				<element name="datasource" type="tns:datasourceType" minOccurs="0" maxOccurs="unbounded"/>
     				</sequence>
 		    	</complexType>
-		    	<unique name="uniqDS">
-    				<selector xpath="tns:datasource"/>
-    				<field    xpath="@name"/>		    	
-		    	</unique>
 		    </element>
 		    <element name="references" minOccurs="0" maxOccurs="1">
 		    	<complexType>
@@ -21,14 +17,61 @@
 		   				<element name="reference" type="tns:referenceType" minOccurs="0" maxOccurs="unbounded"/>
     				</sequence>
 		    	</complexType>
-		    	<unique name="uniqRef">
-    				<selector xpath="tns:reference"/>
-    				<field    xpath="@name"/>		    	
-		    	</unique>
 		    </element>
 		    
     	 </all>	
     	</complexType>
+    	
+    	<unique name="uniqDS">
+			<selector xpath="tns:datasources/tns:datasource"/>
+			<field    xpath="@id"/>		    	
+    	</unique>
+    	
+    	<unique name="uniqRef">
+			<selector xpath="tns:references/tns:reference"/>
+    		<field    xpath="@id"/>		    	
+		</unique>
+
+    	<unique name="uniqView">
+			<selector xpath="tns:references/tns:reference/tns:views/tns:view"/>
+			<field    xpath="@name"/>		    	
+    	</unique>
+
+    	<unique name="uniqAttr">
+			<selector xpath="tns:references/tns:reference/tns:attributes/tns:attribute"/>
+			<field    xpath="@name"/>		    	
+    	</unique>
+
+    	<unique name="uniqSQLAttr">
+			<selector xpath="tns:datasources/tns:datasource/tns:attributes/tns:attribute"/>
+			<field    xpath="@name"/>		    	
+    	</unique>
+		
+		<keyref name="refDS" refer="tns:uniqRef">
+			<selector xpath="tns:datasources/tns:datasource/tns:reference"/>
+			<field xpath="@id"/>
+		</keyref>
+		
+		<keyref name="refDefaultView" refer="tns:uniqView">
+			<selector xpath="tns:references/tns:reference/tns:views"/>
+			<field xpath="@default"/>
+		</keyref>
+
+		<keyref name="refKeyReference" refer="tns:uniqAttr">
+			<selector xpath="tns:references/tns:reference"/>
+			<field xpath="@key"/>
+		</keyref>
+
+		<keyref name="refParentKeyReference" refer="tns:uniqAttr">
+			<selector xpath="tns:references/tns:reference"/>
+			<field xpath="@parentkey"/>
+		</keyref>
+
+		<keyref name="refKeySQL" refer="tns:uniqSQLAttr">
+			<selector xpath="tns:datasources/tns:datasource"/>
+			<field xpath="@key"/>
+		</keyref>
+		
     </element>
 
 		    	
@@ -37,31 +80,91 @@
     	</restriction>
     </simpleType>
 
+	<group name="sqlDataSource">
+   		<sequence>
+   			<element name="sql" type="tns:cdata" maxOccurs="1" />
+	   	    <element name="attributes" maxOccurs="1">
+				<complexType>
+	   				<sequence>
+	   					<element name="attribute" type="tns:attributeType" maxOccurs="unbounded"/>
+	   				</sequence>
+				</complexType>
+	   	    </element>
+   		</sequence>
+   	</group>
+
    	<complexType name="datasourceType">
    		<sequence>
    			<choice maxOccurs="1" minOccurs="1">
-   				<element name="sql" type="tns:cdata" maxOccurs="1" />
+   				<group ref="tns:sqlDataSource"/>
    				<element name="reference" maxOccurs="1">
    					<complexType>
-   						<attribute name="name" type="QName" use="required"></attribute>
+   						<attribute name="id" type="QName" use="required"></attribute>
    						<attribute name="view" type="string"/>
    					</complexType>
-   					<keyref name="refDS" refer="tns:uniqRef">
-   						<selector xpath="."/>
-   						<field xpath="@name"/>
-   					</keyref>
    				</element>
    			</choice>
    		</sequence>
-   		<attribute name="name" type="QName" use="required"></attribute>
+   		<attribute name="id" type="QName" use="required"></attribute>
+   		<attribute name="key" type="QName"></attribute>
+   		<attribute name="lazy" type="boolean"></attribute>
     </complexType>
 
    	<complexType name="referenceType">
-    	<sequence>
-    	</sequence>
-   		<attribute name="name" type="QName" use="required"></attribute>
+   	  <all>
+   	    <element name="attributes" maxOccurs="1">
+			<complexType>
+   				<sequence>
+   					<element name="attribute" type="tns:attributeType" maxOccurs="unbounded"/>
+   				</sequence>
+			</complexType>
+   	    </element>
+   		<element name="views" maxOccurs="1">
+			<complexType>
+   				<sequence>
+   					<element name="view" type="tns:viewType" maxOccurs="unbounded"/>
+   				</sequence>
+				<attribute name="default" type="QName"/>
+			</complexType>
+   		</element>
+   		<element name="insert" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
+   		<element name="update" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
+   		<element name="delete" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
+   	  </all>	
+ 	  <attribute name="id" type="QName" use="required"></attribute>
+ 	  <attribute name="type" type="tns:referenceBookType" use="required"></attribute>
+ 	  <attribute name="title" type="string" use="required"></attribute>
+ 	  <attribute name="history" type="boolean"></attribute>
+ 	  <attribute name="key" type="QName" use="required"></attribute>
+ 	  <!-- TODO: check needed required if type = Hierarchy -->
+ 	  <attribute name="parentkey" type="QName"></attribute>
+ 	  <attribute name="сanсhoisefolder" type="boolean"></attribute>
     </complexType>
 
+   	<complexType name="viewType">
+    	<sequence>
+			<element name="sql" type="tns:cdata" maxOccurs="1" />
+    	</sequence>
+		<attribute name="name" type="QName" use="required"/>
+   	    <attribute name="title" type="string" use="required"></attribute>
+    </complexType>
+    
+    <complexType name="rpcType">
+    </complexType>
+  	
+  	<simpleType name="referenceBookType">
+	    <restriction base="string">
+	      <enumeration value="Simple"/>
+	      <enumeration value="Linear"/>
+	      <enumeration value="Hierarchy"/>
+	    </restriction>
+  	</simpleType>
 
+   	<complexType name="attributeType">
+		<attribute name="name" type="QName" use="required"/>
+   	    <attribute name="caption" type="string" default="@name"/>
+   	    <attribute name="visible" type="boolean" default="true"/>
+   	    <attribute name="mandatory" type="boolean" default="false"/>
+    </complexType>
  
 </schema>
