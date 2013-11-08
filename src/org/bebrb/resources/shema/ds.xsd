@@ -1,37 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.bebrb.org/schema" xmlns:tns="http://www.bebrb.org/schema" elementFormDefault="qualified">
 
-    <element name="datasources">
+    <element name="root">
     	<complexType>
-    		<sequence maxOccurs="unbounded">
-    			<element name="datasource" type="tns:datasourceType"></element>
-    		</sequence>
+    	 <all>
+		    <element name="datasources" minOccurs="0" maxOccurs="1">
+		    	<complexType>
+    				<sequence>
+		   				<element name="datasource" type="tns:datasourceType" minOccurs="0" maxOccurs="unbounded"/>
+    				</sequence>
+		    	</complexType>
+		    	<unique name="uniqDS">
+    				<selector xpath="tns:datasource"/>
+    				<field    xpath="@name"/>		    	
+		    	</unique>
+		    </element>
+		    <element name="references" minOccurs="0" maxOccurs="1">
+		    	<complexType>
+    				<sequence>
+		   				<element name="reference" type="tns:referenceType" minOccurs="0" maxOccurs="unbounded"/>
+    				</sequence>
+		    	</complexType>
+		    	<unique name="uniqRef">
+    				<selector xpath="tns:reference"/>
+    				<field    xpath="@name"/>		    	
+		    	</unique>
+		    </element>
+		    
+    	 </all>	
     	</complexType>
     </element>
 
+		    	
     <simpleType name="cdata">
     	<restriction base="string">
     	</restriction>
     </simpleType>
 
    	<complexType name="datasourceType">
-    		<sequence>
-    			<choice maxOccurs="1" minOccurs="1">
-    				<element name="sql" type="tns:cdata" maxOccurs="1" />
-    				<element name="reference" maxOccurs="1">
-    					<complexType>
-    						<attribute name="name" type="string"
-    							use="required">
-    						</attribute>
-    						<attribute name="view" type="string"
-    							use="required">
-    						</attribute>
-    					</complexType>
-    				</element>
-    			</choice>
-    		</sequence>
-    		<attribute name="name" type="QName" use="required"></attribute>
-    	</complexType>
+   		<sequence>
+   			<choice maxOccurs="1" minOccurs="1">
+   				<element name="sql" type="tns:cdata" maxOccurs="1" />
+   				<element name="reference" maxOccurs="1">
+   					<complexType>
+   						<attribute name="name" type="QName" use="required"></attribute>
+   						<attribute name="view" type="string"/>
+   					</complexType>
+   					<keyref name="refDS" refer="tns:uniqRef">
+   						<selector xpath="."/>
+   						<field xpath="@name"/>
+   					</keyref>
+   				</element>
+   			</choice>
+   		</sequence>
+   		<attribute name="name" type="QName" use="required"></attribute>
+    </complexType>
+
+   	<complexType name="referenceType">
+    	<sequence>
+    	</sequence>
+   		<attribute name="name" type="QName" use="required"></attribute>
+    </complexType>
 
 
  

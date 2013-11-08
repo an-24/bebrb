@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<datasources xmlns="http://www.bebrb.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <datasource name="q1">
-  <!-- <reference name="r1" view="v1"></reference> -->
-  <sql><![CDATA[
-    select * 
-    from dual
-    ]]></sql>
-  
-  </datasource>
-</datasources>
+<root xmlns="http://www.bebrb.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<datasources>
+	  <datasource name="q1">
+	  <reference name="r1" view="v1"></reference>
+	  <!-- 
+	  <sql><![CDATA[
+	    select * 
+	    from dual
+	    ]]></sql>
+	  -->
+	  </datasource>
+	</datasources>
+	
+	<references>
+	  <reference name="r1"></reference>
+	</references>
+</root>
