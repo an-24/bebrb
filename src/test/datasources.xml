@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root xmlns="http://www.bebrb.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<root xmlns="http://www.bebrb.org/schema" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<datasources>
 	  
 	  <datasource id="q2" key="document_id">
@@ -46,7 +48,15 @@
 	    		</sql>	
 	  		</view>
 	  	</views>
-	  	<insert></insert>
+	  	<insert>
+	  		<arguments>
+	  			<arg name="a" type="Integer"/>
+	  			<arg name="b" type="Date"/>
+	  			<arg name="c" type="String"/>
+	  		</arguments>
+	  		function(a,b,c) {
+	  		}
+	  	</insert>
 	  </reference>
 	</references>
 </root>

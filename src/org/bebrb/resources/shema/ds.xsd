@@ -71,7 +71,6 @@
 			<selector xpath="tns:datasources/tns:datasource"/>
 			<field xpath="@key"/>
 		</keyref>
-		
     </element>
 
 		    	
@@ -105,9 +104,10 @@
    				</element>
    			</choice>
    		</sequence>
-   		<attribute name="id" type="QName" use="required"></attribute>
-   		<attribute name="key" type="QName"></attribute>
-   		<attribute name="lazy" type="boolean"></attribute>
+   		<attribute name="id" type="QName" use="required"/>
+   		<attribute name="key" type="QName"/>
+   		<attribute name="lazy" type="boolean" default="true"/>
+ 	    <attribute name="cache-control" type="tns:cacheControlType" default="none"/>
     </complexType>
 
    	<complexType name="referenceType">
@@ -131,25 +131,40 @@
    		<element name="update" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    		<element name="delete" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    	  </all>	
- 	  <attribute name="id" type="QName" use="required"></attribute>
- 	  <attribute name="type" type="tns:referenceBookType" use="required"></attribute>
- 	  <attribute name="title" type="string" use="required"></attribute>
- 	  <attribute name="history" type="boolean"></attribute>
- 	  <attribute name="key" type="QName" use="required"></attribute>
+ 	  <attribute name="id" type="QName" use="required"/>
+ 	  <attribute name="type" type="tns:referenceBookType" use="required"/>
+ 	  <attribute name="title" type="string" use="required"/>
+ 	  <attribute name="history" type="boolean"/>
+ 	  <attribute name="key" type="QName" use="required"/>
+ 	  <attribute name="cache-control" type="tns:cacheControlType" default="none"/>
  	  <!-- TODO: check needed required if type = Hierarchy -->
- 	  <attribute name="parentkey" type="QName"></attribute>
- 	  <attribute name="сanсhoisefolder" type="boolean"></attribute>
+ 	  <attribute name="parentkey" type="QName"/>
+ 	  <attribute name="сanсhoisefolder" type="boolean"/>
     </complexType>
 
    	<complexType name="viewType">
-    	<sequence>
+    		<sequence>
 			<element name="sql" type="tns:cdata" maxOccurs="1" />
-    	</sequence>
+    		</sequence>
 		<attribute name="name" type="QName" use="required"/>
    	    <attribute name="title" type="string" use="required"></attribute>
     </complexType>
     
     <complexType name="rpcType">
+    		<sequence>
+			<element name="arguments" minOccurs="0" maxOccurs="1">
+			<complexType>
+				<sequence>
+					<element name="arg" minOccurs="0" maxOccurs="unbounded">
+						<complexType>
+							<attribute name="name" type="QName" use="required"/>
+							<attribute name="type" type="tns:attrType" use="required"/>
+						</complexType>
+					</element>
+				</sequence>
+			</complexType>
+			</element>
+    		</sequence>
     </complexType>
   	
   	<simpleType name="referenceBookType">
@@ -159,6 +174,29 @@
 	      <enumeration value="Hierarchy"/>
 	    </restriction>
   	</simpleType>
+  	
+  	<simpleType name="cacheControlType">
+	    <restriction base="string">
+	      <enumeration value="none"/>
+	      <enumeration value="withinsession"/>
+	      <enumeration value="ismodified"/>
+	    </restriction>
+  	</simpleType>
+
+  	<simpleType name="attrType">
+	    <restriction base="string">
+	      <enumeration value="Integer"/>
+	      <enumeration value="String"/>
+	      <enumeration value="Money"/>
+	      <enumeration value="Double"/>
+	      <enumeration value="Date"/>
+	      <enumeration value="Image"/>
+	      <enumeration value="Text"/>
+	      <enumeration value="Blob"/>
+	      <enumeration value="Boolean"/>
+	    </restriction>
+  	</simpleType>
+
 
    	<complexType name="attributeType">
 		<attribute name="name" type="QName" use="required"/>
