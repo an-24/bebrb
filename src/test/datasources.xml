@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root xmlns="http://www.bebrb.org/schema" 
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:account="file://modules/acc.xml"
 		xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<datasources>
 	  
@@ -39,13 +40,13 @@
 	    			       tclass_name,
 	    			       tclass_note 
 	    			from dual
-	    		</sql>	
+	    			</sql>	
 	  		</view>
 	  		<view name="v2" title="Избранные">
 	  			<sql>
 	    			select * 
 	    			from dual
-	    		</sql>	
+	    			</sql>	
 	  		</view>
 	  	</views>
 	  	<insert>
@@ -57,6 +58,7 @@
 	  		function(a,b,c) {
 	  		}
 	  	</insert>
+	  	<delete ref="account:operdel"/>
 	  </reference>
 	</references>
 </root>

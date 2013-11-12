@@ -129,7 +129,7 @@
    		</element>
    		<element name="insert" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    		<element name="update" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
-   		<element name="delete" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
+ 		<element name="delete" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    	  </all>	
  	  <attribute name="id" type="QName" use="required"/>
  	  <attribute name="type" type="tns:referenceBookType" use="required"/>
@@ -150,7 +150,8 @@
    	    <attribute name="title" type="string" use="required"></attribute>
     </complexType>
     
-    <complexType name="rpcType">
+    <complexType name="rpcType" mixed="true">
+    <!-- TODO check ref or not empty body -->
     		<sequence>
 			<element name="arguments" minOccurs="0" maxOccurs="1">
 			<complexType>
@@ -165,6 +166,7 @@
 			</complexType>
 			</element>
     		</sequence>
+		<attribute name="ref" type="QName"/>
     </complexType>
   	
   	<simpleType name="referenceBookType">

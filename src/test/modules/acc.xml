@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<operdel>
+  		<arguments>
+  			<arg name="id" type="Integer"/>
+  		</arguments>
+  		function(id) {
+  		}
+	</operdel>
+</root>
