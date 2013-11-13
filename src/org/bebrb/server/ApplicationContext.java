@@ -32,9 +32,9 @@ public class ApplicationContext {
 	}
 
 	private void loadDataSources() throws IOException, SAXException, ParserConfigurationException {
-		log.config("start datasources loading process...");
+		log.info("start datasources loading process...");
 		datasources = new DataSourcesContext(this);
-		log.config("datasources loading process [ok]");
+		log.info("datasources loading process [ok]");
 	}
 
 	public String getName() {

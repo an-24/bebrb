@@ -107,7 +107,7 @@
    		<attribute name="id" type="QName" use="required"/>
    		<attribute name="key" type="QName"/>
    		<attribute name="lazy" type="boolean" default="true"/>
- 	    <attribute name="cache-control" type="tns:cacheControlType" default="none"/>
+ 	    <attribute name="cache-control" type="tns:cacheControlType" default="None"/>
     </complexType>
 
    	<complexType name="referenceType">
@@ -136,7 +136,7 @@
  	  <attribute name="title" type="string" use="required"/>
  	  <attribute name="history" type="boolean"/>
  	  <attribute name="key" type="QName" use="required"/>
- 	  <attribute name="cache-control" type="tns:cacheControlType" default="none"/>
+ 	  <attribute name="cache-control" type="tns:cacheControlType" default="None"/>
  	  <!-- TODO: check needed required if type = Hierarchy -->
  	  <attribute name="parentkey" type="QName"/>
  	  <attribute name="сanсhoisefolder" type="boolean"/>
@@ -179,9 +179,9 @@
   	
   	<simpleType name="cacheControlType">
 	    <restriction base="string">
-	      <enumeration value="none"/>
-	      <enumeration value="withinsession"/>
-	      <enumeration value="ismodified"/>
+	      <enumeration value="None"/>
+	      <enumeration value="WithinSession"/>
+	      <enumeration value="IsModified"/>
 	    </restriction>
   	</simpleType>
 

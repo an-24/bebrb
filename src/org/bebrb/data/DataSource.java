@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public interface DataSource {
 	
+	public static enum CacheControl {None,WithinSession,IsModified};
+
 	/**
 	 * Уникальный идентификатор источника
 	 * @return

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.bebrb.data.Attribute;
+import org.bebrb.data.DataSource;
 
 /**
  * Информация о структуре и полях справочника
@@ -82,5 +83,7 @@ public interface ReferenceBookMetaData {
 	 * @return не имеет значения везде кроме справочников с типом {@link ReferenceType#Hierarchy} 
 	 */
 	public boolean isCanChoiseFolder();
+	
+	public DataSource.CacheControl getCacheControl();
 
 }
