@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://www.bebrb.org/schema" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:account="file://modules/acc.xml"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<datasources>
+	  
+	  <datasource id="q2" key="document_id">
+		  <sql><![CDATA[
+		    	select * 
+		    	from dual
+		  ]]></sql>
+		  <attributes>
+		  	<attribute name="document_id" visible="false"/>
+		  	<attribute name="document_date" visible="true"  caption="Дата документа"/>
+		  </attributes>
+	  </datasource>
+	  
+	  <datasource id="q1">
+		  <reference id="r1" view="v1"></reference>
+		  <!-- 
+		  <sql><![CDATA[
+		    	select * 
+		    	from dual
+		    	]]></sql>
+		  -->
+	  </datasource>
+	</datasources>
+	
+	<references>
+	  <reference id="r1" type="Simple" title="Пример простого справочника" key="tclass_id">
+	    <attributes>
+	    	<attribute name="tclass_id" visible="false"/>
+	    	<attribute name="tclass_name" caption="Имя класса"/>
+	    </attributes>
+	  	<views default="v2">
+	  		<view name="v1" title="По умолчанию">
+	  			<sql>
+	    			select tclass_id,
+	    			       tclass_name,
+	    			       tclass_note 
+	    			from dual
+	    			</sql>	
+	  		</view>
+	  		<view name="v2" title="Избранные">
+	  			<sql>
+	    			select * 
+	    			from dual
+	    			</sql>	
+	  		</view>
+	  	</views>
+	  	<insert>
+	  		<arguments>
+	  			<arg name="a" type="Integer"/>
+	  			<arg name="b" type="Date"/>
+	  			<arg name="c" type="String"/>
+	  		</arguments>
+	  		function(a,b,c) {
+	  		}
+	  	</insert>
+	  	<delete ref="account:operdel"/>
+	  </reference>
+	</references>
+</root>
