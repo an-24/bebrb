@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.bebrb.org/schema" xmlns:tns="http://www.bebrb.org/schema" elementFormDefault="qualified">
+    <element name="root">
+    	<complexType>
+    	 <all>
+    	 	<element name="info">
+    	 		<complexType>
+					<attribute name="name" type="string"/>
+					<attribute name="title" type="string"/>
+    	 		</complexType>
+    	 	</element>
+    	 	<element name="versions">
+    	 		<complexType>
+    	 			<sequence>
+    	 				<element name="ver" maxOccurs="unbounded">
+    	 					<complexType mixed="true">
+    	 						<sequence>
+						    	 	<element name="data" minOccurs="0">
+						    	 		<complexType>
+						    	 			<sequence>
+						    	 				<element name="datamodule" maxOccurs="unbounded">
+						    	 					<complexType>
+						    	 						<attribute name="name" type="string" use="required"/>
+						    	 					</complexType>
+						    	 				</element>
+						    	 			</sequence>
+						    	 		</complexType>
+						    	 	</element>
+    	 						</sequence>
+    	 						<attribute name="number" type="tns:NumberVersion" use="required"/>
+    	 						<attribute name="release" type="date" use="required"/>
+    	 					</complexType>
+    	 				</element>
+    	 			</sequence>
+					<attribute name="default" type="tns:NumberVersion" use="required"/>
+    	 		</complexType>
+    	 	</element>
+    	 </all>
+    	</complexType>
+    </element>
+    
+    <simpleType name="NumberVersion">
+    	<restriction base="string">
+    		<pattern value="\d+-\d+-\d+"></pattern>
+    	</restriction>
+    </simpleType>	
+</schema>

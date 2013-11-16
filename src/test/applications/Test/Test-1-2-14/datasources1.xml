@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root xmlns="http://www.bebrb.org/schema" 
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns:account="file://modules/acc.xml"
+		xmlns:account="modules/acc.xml"
 		xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<datasources>
 	  
@@ -37,10 +37,12 @@
 	  	<views default="v2">
 	  		<view name="v1" title="По умолчанию">
 	  			<sql>
+	  			  <![CDATA[
 	    			select tclass_id,
 	    			       tclass_name,
 	    			       tclass_note 
 	    			from dual
+	    			]]>
 	    			</sql>	
 	  		</view>
 	  		<view name="v2" title="Избранные">
@@ -59,7 +61,7 @@
 	  		function(a,b,c) {
 	  		}
 	  	</insert>
-	  	<delete ref="account:operdel"/>
+	  	<delete ref="account.operdel"/>
 	  </reference>
 	</references>
 </root>

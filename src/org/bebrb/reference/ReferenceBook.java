@@ -5,6 +5,8 @@ package org.bebrb.reference;
 
 import java.util.Map;
 
+import org.bebrb.data.RemoteFunction;
+
 /**
  * Справочник
  *
@@ -25,5 +27,21 @@ public interface ReferenceBook {
 	 * @return представление. Не может быть null
 	 */
 	public View getDefaultView();
+	
+	/**
+	 * Удаленная процедура для вставки данных
+	 * @return может быть null
+	 */
+	public RemoteFunction getInsertFunc();
+	/**
+	 * Удаленная процедура для изменения(обновления) данных
+	 * @return может быть null
+	 */
+	public RemoteFunction getUpdateFunc();
+	/**
+	 * Удаленная процедура для удаления данных
+	 * @return может быть null
+	 */
+	public RemoteFunction getDeleteFunc();
 
 }

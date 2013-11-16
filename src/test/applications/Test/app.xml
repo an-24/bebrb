@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://www.bebrb.org/schema" 
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	  
+	<info name="Test" title="Тестовое приложение"/>
+	<versions default="1-2-14">
+		<ver number="1-2-14" release="2013-11-01">
+			<data>
+				<datamodule name="datasources1.xml"/>
+			</data>
+		</ver>
+		<ver number="1-0-0"  release="2013-09-01">
+		    Первый официальный релиз
+		</ver>
+	</versions>
+</root>

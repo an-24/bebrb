@@ -89,6 +89,9 @@
 	   				</sequence>
 				</complexType>
 	   	    </element>
+   			<element name="insert" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
+   			<element name="update" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
+ 			<element name="delete" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    		</sequence>
    	</group>
 

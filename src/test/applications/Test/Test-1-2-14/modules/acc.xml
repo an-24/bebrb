@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<root xmlns="http://www.bebrb.org/schema" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:account="modules/acc.xml"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<function name="operdel">
   		<arguments>
   			<arg name="id" type="Integer"/>
