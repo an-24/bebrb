@@ -4,16 +4,14 @@
 package org.bebrb.reference;
 
 import java.util.Date;
-import java.util.List;
-
 import org.bebrb.data.Attribute;
-import org.bebrb.data.DataSource;
+import org.bebrb.data.BaseDataSet;
 
 /**
  * Информация о структуре и полях справочника
  *
  */
-public interface ReferenceBookMetaData {
+public interface ReferenceBookMetaData extends BaseDataSet {
 	/**
 	 * Типы справочников 
 	 * <ul>
@@ -29,12 +27,6 @@ public interface ReferenceBookMetaData {
 	 * @return  true, если по справочнику допускаются исторические данные 
 	 */
 	public boolean isHistoryAvailable(); 
-	
-	/**
-	 * Уникальный идентификатор справочника
-	 * @return не может быть null
-	 */
-	public String getReferenceId();
 	
 	/**
 	 * Имя справочника
@@ -61,18 +53,6 @@ public interface ReferenceBookMetaData {
 	public Date getActualDate();
 	
 	/**
-	 * Возвращает список атрибутов справочника, включая ключевой
-	 * @return не может быть null
-	 */
-	public List<Attribute> getAttributes();
-	
-	/**
-	 * Ключевой атрибут
-	 * @return не может быть null
-	 */
-	public Attribute getKey();
-	
-	/**
 	 * Атрибут-ссылка на родительский элемент
 	 * @return является null везде кроме справочников с типом {@link ReferenceType#Hierarchy} 
 	 */
@@ -83,7 +63,5 @@ public interface ReferenceBookMetaData {
 	 * @return не имеет значения везде кроме справочников с типом {@link ReferenceType#Hierarchy} 
 	 */
 	public boolean isCanChoiseFolder();
-	
-	public DataSource.CacheControl getCacheControl();
 
 }

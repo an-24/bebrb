@@ -24,9 +24,9 @@ public interface Attribute {
 	
 	/**
 	 * Источник данных в котором используется данный атрибут
-	 * @return  не может быть null
+	 * @return  может быть null
 	 */
-	public DataSource getDataSource();
+	public BaseDataSet getDataSource();
 	
 	/**
 	 * Имя атрибута

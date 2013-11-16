@@ -11,8 +11,8 @@
 		    	from dual
 		  ]]></sql>
 		  <attributes>
-		  	<attribute name="document_id" visible="false"/>
-		  	<attribute name="document_date" visible="true"  caption="Дата документа"/>
+		  	<attribute type="Integer" name="document_id" visible="false"/>
+		  	<attribute type="Date" name="document_date" visible="true"  caption="Дата документа"/>
 		  </attributes>
 	  </datasource>
 	  
@@ -30,8 +30,9 @@
 	<references>
 	  <reference id="r1" type="Simple" title="Пример простого справочника" key="tclass_id">
 	    <attributes>
-	    	<attribute name="tclass_id" visible="false"/>
-	    	<attribute name="tclass_name" caption="Имя класса"/>
+	    	<attribute type="Integer" name="tclass_id" visible="false"/>
+	    	<attribute type="String" size="60" name="tclass_name" caption="Имя класса"/>
+	    	<attribute type="Integer" name="par_class_id" visible="false" fkey="r1.tclass_id"/>
 	    </attributes>
 	  	<views default="v2">
 	  		<view name="v1" title="По умолчанию">

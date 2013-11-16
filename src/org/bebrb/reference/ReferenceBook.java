@@ -10,13 +10,6 @@ import java.util.Map;
  *
  */
 public interface ReferenceBook {
-	
-	/**
-	 * Уникальный идентификатор справочника
-	 * @return  не может быть null
-	 */
-	public String getReferenceId();
-	
 	/**
 	 * Тип, структура и определения справочника
 	 * @return не может быть null

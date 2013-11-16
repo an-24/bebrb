@@ -10,16 +10,7 @@ import java.util.Map;
  * Источник данных
  *
  */
-public interface DataSource {
-	
-	public static enum CacheControl {None,WithinSession,IsModified};
-
-	/**
-	 * Уникальный идентификатор источника
-	 * @return
-	 */
-	public String getId();
-	
+public interface DataSource extends BaseDataSet {
 	/**
 	 * Тест на получение данных в момент обращения к ним
 	 * @return если false тогда данные получаются сразу при вызове {@link #getDataPages()}, иначе
@@ -50,12 +41,6 @@ public interface DataSource {
 	 * @return true если в источник можно изменять записи
 	 */
 	public boolean isCanEdit();
-	
-	/**
-	 * Возвращает список атрибутов источника данных
-	 * @return не может быть null
-	 */
-	public List<Attribute> getAttributes() throws Exception;
 	
 	/**
 	 * Список страниц

@@ -21,11 +21,17 @@ public class ApplicationContext {
 		this.version = version;
 		try {
 			loadDataSources();
+			//TODO
+			afterLoad();
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Error config", e);
 		}
 	}
 	
+	private void afterLoad() throws Exception {
+		datasources.afterLoad();
+	}
+
 	public String getBasePath(){
 		return "applications"+File.separatorChar+getName()+
 				File.separator+getName()+"-"+getVersion()+File.separator;
