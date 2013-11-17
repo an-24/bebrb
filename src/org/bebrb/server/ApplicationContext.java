@@ -46,6 +46,11 @@ public class ApplicationContext {
 
 	public ApplicationContext(String name) {
 		this.name = name;
+		String[] anames = name.split("/");
+		if(anames.length>1) {
+			this.name = anames[0];
+			this.version = new Version(anames[1]);
+		}
 		load();
 	}
 	
@@ -86,6 +91,8 @@ public class ApplicationContext {
 			version = new Version(sver);
 		}
 		Element el = XMLUtils.findChild(XMLUtils.findChild(root, "versions"),"number",version.toString());
+		if(el==null)
+			throw new SAXException("Version "+version+" not found");
 		XMLUtils.enumChildren(XMLUtils.findChild(el, "data"), new NotifyElement() {
 			@Override
 			public boolean notify(Element e) {
