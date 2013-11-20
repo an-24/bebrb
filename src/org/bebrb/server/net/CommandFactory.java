@@ -1,13 +1,13 @@
 package org.bebrb.server.net;
 
-import org.bebrb.server.net.Command.Type;
 
+import org.bebrb.server.net.Command.Type;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
 public class CommandFactory {
-
+	
 	public CommandFactory() {
 	}
 	
@@ -18,31 +18,20 @@ public class CommandFactory {
 		if(array.size()<2) 
 			throw new Exception("Unknown format command -"+jsonstr);
 		String cmdType = gson.fromJson(array.get(0), String.class);
-		Command cmd = (Command) gson.fromJson(array.get(1), getClassCommand(Type.valueOf(cmdType)));
+		Command cmd = (Command) gson.fromJson(array.get(1), Command.getClass(Type.valueOf(cmdType)));
 		return cmd;
 		
 	}
 	
-	public static Command newCommand(Type type) throws Exception {
-		
-		switch (type) {
-		case Hello:
-			return (Command) getClassCommand(type).newInstance();
-
-		default:
-			throw new Exception("Unknown command "+type);
-		}
-		
+	public static String toJson(Command cmd) {
+		String scmd = "[\""+cmd.type.toString()+"\",";
+		Gson gson = new Gson();
+		scmd+=gson.toJson(cmd)+"]";
+		return scmd;
 	}
 	
-	public static Class<?> getClassCommand(Type type)  throws Exception {
-
-		switch (type) {
-		case Hello: return CommandHello.class;
-
-		default:
-			throw new Exception("Unknown command "+type);
-		}
-		
+	public static Command newCommand(Type type) throws Exception {
+		return (Command) Command.getClass(type).newInstance();
 	}
+	
 }

@@ -1,6 +1,5 @@
 package org.bebrb.server.net;
 
-import com.google.gson.annotations.Expose;
 
 /**
  * Base class for net command. Net command send is a message of JSON format. 
@@ -21,13 +20,22 @@ public class Command {
 	 *
 	 */
 	public static enum Type {Hello,Login,Logout};
+	private static Class<?>[] classes = {
+		CommandHello.class
+	};
 	
 	public transient final Type type;
 	
 	protected Command(Type t) {
 		type = t;
 	}
+
+	public static Class<?> getClass(Type t) {
+		return classes[t.ordinal()];
+	}
 	
-	
+	public String toString() {
+		return CommandFactory.toJson(this);
+	}
 	
 }
