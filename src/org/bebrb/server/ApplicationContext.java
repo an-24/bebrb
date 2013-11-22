@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -93,6 +95,10 @@ public class ApplicationContext {
 		Element el = XMLUtils.findChild(XMLUtils.findChild(root, "versions"),"number",version.toString());
 		if(el==null)
 			throw new SAXException("Version "+version+" not found");
+		
+		Date release = DatatypeConverter.parseDate(el.getAttribute("release")).getTime();
+		version.setRelease(release);
+		
 		XMLUtils.enumChildren(XMLUtils.findChild(el, "data"), new NotifyElement() {
 			@Override
 			public boolean notify(Element e) {
@@ -100,6 +106,17 @@ public class ApplicationContext {
 				return false;
 			}
 		});
+	}
+	
+	public static List<ApplicationContext> getApplications() {
+		File[] files = new File("applications").listFiles();
+		List<ApplicationContext> lactx = new ArrayList<ApplicationContext>();
+		for (File file : files) 
+		if(file.isDirectory()) {
+			ApplicationContext ctx = new ApplicationContext(file.getName());
+			lactx.add(ctx);
+		}
+		return lactx;
 	}
 
 	public Map<String, ModuleContext> getModules() {
@@ -178,6 +195,8 @@ public class ApplicationContext {
 		public final int major;
 		public final int minor;
 		public final int build;
+		
+		private Date release;
 
 		public Version(int major, int minor, int build) {
 			this.major = major;
@@ -190,7 +209,14 @@ public class ApplicationContext {
 			minor = new Integer(vers[1]);
 			build = new Integer(vers[2]);
 		}
-		
+
+		public Date getRelease() {
+			return release;
+		}
+		public void setRelease(Date release) {
+			this.release = release;
+		}
+
 		public String toString() {
 			return major+"-"+minor+"-"+build;
 		}
