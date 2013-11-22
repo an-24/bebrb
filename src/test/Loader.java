@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import org.bebrb.server.net.Command;
 import org.bebrb.server.net.Command.Type;
 import org.bebrb.server.net.CommandFactory;
+import org.bebrb.server.net.WriteStreamException;
 
 public class Loader {
 	
@@ -42,12 +43,17 @@ public class Loader {
 					try {
 						cmd.solution(out);
 						sock.shutdownOutput();
-					} catch(Throwable th) {
+					} catch(WriteStreamException ex) {
+						// net problem
+						sock.shutdownOutput();
+						ex.printStackTrace();
+					} catch(Exception th) {
 						Writer writer = new BufferedWriter(new OutputStreamWriter(out));
 						writer.write(CommandFactory.toJson(th));
 						writer.flush();
 						sock.shutdownOutput();
-					}
+					}	
+						
 				} finally {
 					sock.close();		
 				};

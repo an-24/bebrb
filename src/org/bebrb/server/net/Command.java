@@ -1,7 +1,12 @@
 package org.bebrb.server.net;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 
 /**
@@ -37,7 +42,31 @@ public abstract class Command {
 		return classes[t.ordinal()];
 	}
 	
-	public abstract void solution(OutputStream out) throws IOException;
+	public abstract void solution(OutputStream out) throws WriteStreamException, Exception;
+	
+	protected void writeToOutputStream(OutputStream out, String data) throws WriteStreamException {
+		OutputStreamWriter wr = new OutputStreamWriter(out);
+		Writer writer = new BufferedWriter(wr);
+		try {
+			writer.write(data);
+			writer.flush();
+		} catch (IOException e) {
+			throw new WriteStreamException(e);
+		}
+	}
+
+	protected void writeToOutputStream(OutputStream out, InputStream in) throws WriteStreamException {
+		try {
+			byte[] buff = new byte[1024];
+			int n = buff.length;
+			while(n==buff.length) {
+				n = in.read(buff);
+				out.write(buff, 0, n);
+			}
+		} catch (IOException e) {
+			throw new WriteStreamException(e);
+		}
+	}
 	
 	public String toString() {
 		return CommandFactory.toJson(this);

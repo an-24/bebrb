@@ -1,10 +1,6 @@
 package org.bebrb.server.net;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +10,7 @@ import org.bebrb.server.ApplicationContext;
 import com.google.gson.Gson;
 
 /**
- * Format of reply for request Hello is
+ * Format of reply for Hello request
  * <pre>
  * {status:0,apps:[{name:&lt;name&gt;,title:&lt;title&gt;,release:&lt;release&gt;},...]}
  * </pre>
@@ -38,18 +34,15 @@ public class CommandHello extends Command {
 	}
 	
 	@Override
-	public void solution(OutputStream out) throws IOException {
+	public void solution(OutputStream out) throws WriteStreamException {
 		ArrayList<ApplicationInfo> ret = new ArrayList<ApplicationInfo>();
-		OutputStreamWriter wr = new OutputStreamWriter(out);
-		Writer writer = new BufferedWriter(wr);
 		List<ApplicationContext> apps = ApplicationContext.getApplications();
 		for (ApplicationContext ctx : apps) {
 			ret.add(new ApplicationInfo(ctx.getName(),ctx.getTitle(),
 					ctx.getVersion().getRelease()));
 		};
 		Gson gson = CommandFactory.createGson();
-		writer.write("{status:0,apps:"+gson.toJson(ret)+"}");
-		writer.flush();
+		writeToOutputStream(out, "{status:0,apps:"+gson.toJson(ret)+"}");
 	}
 
 }
