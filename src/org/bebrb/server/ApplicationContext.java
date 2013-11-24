@@ -2,12 +2,17 @@ package org.bebrb.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,8 +24,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import org.bebrb.context.SessionContext;
+import org.bebrb.context.UserAgent;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
+import org.bebrb.user.User;
+import org.bebrb.utils.UTF8ResourceBundleControl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
@@ -33,12 +42,15 @@ public class ApplicationContext {
 	private String name;
 	private Version version = null;
 	private String title;
+	private Locale locale;
 
 	private static Logger log = Logger.getLogger("bebrb");
 	private DataSourcesContext datasources;
 	private Map<String, ModuleContext> modules = new HashMap<String, ModuleContext>();
 	private List<String> dataModules = new ArrayList<String>();
 
+
+	private static ResourceBundle strings = null;
 	
 	public ApplicationContext(String name, Version version) {
 		this.name = name;
@@ -60,7 +72,7 @@ public class ApplicationContext {
 		return dataModules;
 	}
 
-	public static Logger getLog() {
+	public static Logger getLogger() {
 		return log;
 	}
 
@@ -73,6 +85,7 @@ public class ApplicationContext {
 			log.info("start app["+name+"-"+(version==null?"default":version)+"] loading process...");
 			loadedApp = this;
 			loadApplication();
+			strings = ResourceBundle.getBundle("org/bebrb/resources/strings/messages", locale, new UTF8ResourceBundleControl()); 
 			loadDataSources();
 			//TODO
 			afterLoad();
@@ -87,7 +100,11 @@ public class ApplicationContext {
 		DocumentBuilder builder = createXMLBuider("/org/bebrb/resources/shema/app.xsd");
 		Document doc = builder.parse(getBasePath()+"app.xml");
 		Element root = doc.getDocumentElement();
-		title = XMLUtils.findChild(root, "info").getAttribute("title");
+		Element inf = XMLUtils.findChild(root, "info");
+		title = inf.getAttribute("title");
+		String langTag = inf.getAttribute("lang");
+		if(langTag.isEmpty()) locale = Locale.getDefault();
+						else  locale = new Locale(langTag);
 		if(version==null) {
 			String sver = XMLUtils.findChild(root, "versions").getAttribute("default");
 			version = new Version(sver);
@@ -171,7 +188,7 @@ public class ApplicationContext {
 			
 			@Override
 			public void warning(SAXParseException exception) throws SAXException {
-				ApplicationContext.getLog().warning(exception.getMessage());
+				ApplicationContext.getLogger().warning(exception.getMessage());
 			}
 			
 			@Override
@@ -222,4 +239,62 @@ public class ApplicationContext {
 		}
 	}
 
+	public SessionContext login(String user, String pswd, UserAgent userAgent) {
+		User puser = null;
+		String hashPswd = null;
+		// TODO find user in user store
+		
+		// System user
+		if(puser==null) {
+			final String sysuser = System.getenv("BEBRB-USER");
+			if(sysuser!=null && sysuser.equals(user)) {
+				puser = new User(){
+					@Override
+					public String getLoginName() {
+						return sysuser;
+					}
+					@Override
+					public String getFullName() {
+						return sysuser;
+					}
+					@Override
+					public String getEmail() {
+						return null;
+					}
+				};
+				hashPswd = System.getenv("BEBRB-PSWD");
+			}
+		}
+		
+		if(puser==null || hashPswd==null) return null;
+		
+		try {
+			if(hashPassword(pswd).equals(hashPswd))
+				return new SessionContextImpl(this, new UserContextImpl(puser,userAgent));
+			
+		} catch (NoSuchAlgorithmException e) {
+			log.log(Level.SEVERE, "Error login", e);
+		}
+		return null;
+	}
+
+	public void logout(SessionContext sessionContext) {
+		sessionContext.logout();
+	}
+
+	public static ResourceBundle getStrings() {
+		return strings;
+	}
+
+	
+	private String hashPassword(String pswd) throws NoSuchAlgorithmException {
+		MessageDigest digest = MessageDigest.getInstance("MD5");
+		digest.update(pswd.getBytes(), 0, pswd.length());
+		pswd = new BigInteger(1, digest.digest()).toString(16);
+		return pswd;
+	}
+
+	public Locale getLocale() {
+		return locale;
+	}
 }

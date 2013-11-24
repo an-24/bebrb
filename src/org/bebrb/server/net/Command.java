@@ -3,7 +3,6 @@ package org.bebrb.server.net;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -17,7 +16,7 @@ import java.io.Writer;
  * CommandTypeName is {@link Command.Type}. ObjectCommand - object with the command options. For example:
  * <pre>
  * ["Hello",{}]
- * ["Login",{user:"sys",pswd:"---"}]
+ * ["Login",{app:"test",user:"sys",pswd:"---"}]
  * ["Logout",{session:"ACD1234BD3459001D"}]
  * </pre>
  */
@@ -29,7 +28,9 @@ public abstract class Command {
 	 */
 	public static enum Type {Hello,Login,Logout};
 	private static Class<?>[] classes = {
-		CommandHello.class
+		CommandHello.class,
+		CommandLogin.class,
+		CommandLogout.class
 	};
 	
 	public transient final Type type;
