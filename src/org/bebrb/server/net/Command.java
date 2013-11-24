@@ -1,7 +1,11 @@
 package org.bebrb.server.net;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 
 /**
@@ -12,7 +16,7 @@ import java.io.OutputStream;
  * CommandTypeName is {@link Command.Type}. ObjectCommand - object with the command options. For example:
  * <pre>
  * ["Hello",{}]
- * ["Login",{user:"sys",pswd:"---"}]
+ * ["Login",{app:"test",user:"sys",pswd:"---"}]
  * ["Logout",{session:"ACD1234BD3459001D"}]
  * </pre>
  */
@@ -24,7 +28,9 @@ public abstract class Command {
 	 */
 	public static enum Type {Hello,Login,Logout};
 	private static Class<?>[] classes = {
-		CommandHello.class
+		CommandHello.class,
+		CommandLogin.class,
+		CommandLogout.class
 	};
 	
 	public transient final Type type;
@@ -37,7 +43,31 @@ public abstract class Command {
 		return classes[t.ordinal()];
 	}
 	
-	public abstract void solution(OutputStream out) throws IOException;
+	public abstract void solution(OutputStream out) throws WriteStreamException, Exception;
+	
+	protected void writeToOutputStream(OutputStream out, String data) throws WriteStreamException {
+		OutputStreamWriter wr = new OutputStreamWriter(out);
+		Writer writer = new BufferedWriter(wr);
+		try {
+			writer.write(data);
+			writer.flush();
+		} catch (IOException e) {
+			throw new WriteStreamException(e);
+		}
+	}
+
+	protected void writeToOutputStream(OutputStream out, InputStream in) throws WriteStreamException {
+		try {
+			byte[] buff = new byte[1024];
+			int n = buff.length;
+			while(n==buff.length) {
+				n = in.read(buff);
+				out.write(buff, 0, n);
+			}
+		} catch (IOException e) {
+			throw new WriteStreamException(e);
+		}
+	}
 	
 	public String toString() {
 		return CommandFactory.toJson(this);

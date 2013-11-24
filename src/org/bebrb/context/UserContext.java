@@ -6,15 +6,19 @@ package org.bebrb.context;
 import org.bebrb.user.User;
 
 /**
- * @author Andrey Klyuev
  *
  */
 public interface UserContext extends Context {
 	
 	/**
-	 * Возвращает пользователя
-	 * @return не может быть null
+	 * Return user info
+	 * @return can not be null
 	 */
 	public User getUser();
+	/**
+	 * Return about user agent info
+	 * @return may be null
+	 */
+	public UserAgent getAgentInfo();
 
 }

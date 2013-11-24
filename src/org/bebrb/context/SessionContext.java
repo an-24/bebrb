@@ -6,27 +6,31 @@ package org.bebrb.context;
 import java.util.logging.Logger;
 
 /**
- * Контекст сессии
- * @author Andrey Klyuev
+ * Session context
  *
  */
 public interface SessionContext extends Context {
+	
+	/**
+	 * Unique session ID number
+	 * @return can not be null
+	 */
+	public String getId();  
 
 	/**
-	 * Профиль активного пользователя, прошедшего процедуру аутентификации.
-	 * @return профиль пользователя. 
+	 * Profile of the active user authenticated.
+	 * @return can not be null 
 	 */
 	public UserContext getActiveUserContext();
 	
 	/**
-	 * Закрытие сессии работы активного пользователя. После выполения {@link #getActiveUserContext()} будет 
-	 * возвращать null.
+	 * Close session of the active user. After call {@link #getActiveUserContext()} will return null.
 	 */
 	public void logout();
 	
 	/**
-	 * Возвращает объект для логирования в рамках сессии
-	 * @return не может быть null
+	 * Return object for logging in the session
+	 * @return  can not be null
 	 */
 	public Logger getLogger();
 }
