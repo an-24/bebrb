@@ -1,8 +1,5 @@
 package org.bebrb.server.net;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 
 /**
  * Base class for net command. Net command send is a message of JSON format. 
@@ -16,7 +13,7 @@ import java.io.OutputStream;
  * ["Logout",{session:"ACD1234BD3459001D"}]
  * </pre>
  */
-public abstract class Command {
+public class Command {
 	/**
 	 * Type of net command
 	 * <li>Hello - welcome message. The answer to the query as a list of applications.  
@@ -36,8 +33,6 @@ public abstract class Command {
 	public static Class<?> getClass(Type t) {
 		return classes[t.ordinal()];
 	}
-	
-	public abstract void solution(OutputStream out) throws IOException;
 	
 	public String toString() {
 		return CommandFactory.toJson(this);

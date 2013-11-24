@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -37,17 +36,9 @@ public class Loader {
 			try {
 				try {
 					Command cmd = CommandFactory.parse(request);
-					System.out.println("request:"+cmd);
-					OutputStream out = sock.getOutputStream();
-					try {
-						cmd.solution(out);
-						sock.shutdownOutput();
-					} catch(Throwable th) {
-						Writer writer = new BufferedWriter(new OutputStreamWriter(out));
-						writer.write(CommandFactory.toJson(th));
-						writer.flush();
-						sock.shutdownOutput();
-					}
+					OutputStreamWriter out = new OutputStreamWriter(sock.getOutputStream());
+					Writer writer = new BufferedWriter(out);
+					System.out.println(cmd);
 				} finally {
 					sock.close();		
 				};
@@ -109,8 +100,9 @@ public class Loader {
 		 
             BufferedReader in=new BufferedReader(new InputStreamReader(sock.getInputStream()));    
 			String data;
+			System.out.println("Output from Server .... \n");
 			while ((data = in.readLine()) != null) {
-					System.out.println("response:"+data);
+					System.out.println(data);
 			}
 		 			
 			System.out.println("main finish");			
