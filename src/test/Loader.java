@@ -117,14 +117,15 @@ public class Loader {
 			String sr;
 			// отправляем команду Hello
 			sr = send(new CommandHello());
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			CommandHello.Response response1 =  CommandFactory.createGson().fromJson(sr, CommandHello.Response.class);
 			Thread.sleep(1000);
 			
 			// отправляем команду Login
 			sr = send(new CommandLogin(response1.getApps().get(0).getName(),"sysAdmin","qwerty"));
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			CommandLogin.Response response2 = CommandFactory.createGson().fromJson(sr, CommandLogin.Response.class);
 			Thread.sleep(1000);
-			
 			
 			// отправляем команду Logout
 			send(new CommandLogout(response2.getSession().getId()));

@@ -117,5 +117,13 @@ public class DataSourcesContext {
 		log.info("DataSources after load [ok]");
 	}
 
+	public List<ReferenceBook> getRefs() {
+		return refs;
+	}
+
+	public List<DataSource> getDatasources() {
+		return datasources;
+	}
+
 
 }

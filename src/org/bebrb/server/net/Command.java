@@ -21,12 +21,15 @@ import java.io.Writer;
  * </pre>
  */
 public abstract class Command {
+	public static final int OK = 0;
+	public static final int ERROR = 100;
+
 	/**
 	 * Type of net command
 	 * <li>Hello - welcome message. The answer to the query as a list of applications.  
 	 *
 	 */
-	public static enum Type {Hello,Login,Logout};
+	public static enum Type {Hello,Login,Logout}
 	private static Class<?>[] classes = {
 		CommandHello.class,
 		CommandLogin.class,
@@ -34,6 +37,10 @@ public abstract class Command {
 	};
 	
 	public transient final Type type;
+
+	public class Response {
+		int status;
+	}
 	
 	protected Command(Type t) {
 		type = t;
@@ -44,6 +51,11 @@ public abstract class Command {
 	}
 	
 	public abstract void solution(OutputStream out) throws WriteStreamException, Exception;
+	
+	public static int getStatus(String response) {
+		Response result = CommandFactory.createGson().fromJson(response, Command.Response.class);
+		return result.status;
+	}
 	
 	protected void writeToOutputStream(OutputStream out, String data) throws WriteStreamException {
 		OutputStreamWriter wr = new OutputStreamWriter(out);

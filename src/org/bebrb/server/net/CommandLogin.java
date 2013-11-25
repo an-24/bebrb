@@ -75,39 +75,33 @@ public class CommandLogin extends Command {
 			throw new Exception(ApplicationContext.getStrings().getString("loginError"));
 		
 		response.session.id = session.getId();
-		response.session.version = ctx.getVersion().toString(); 
+		response.session.version = ctx.getVersion().toString();
+		response.session.ctx = ctx;
 		
 		Gson gson = CommandFactory.createGson();
 		writeToOutputStream(out, gson.toJson(response));
 	}
 
-	@SuppressWarnings("rawtypes")
-	private ArrayList getReferencesIds() {
-		ArrayList list = new ArrayList();
-		// TODO Auto-generated method stub
-		return list;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private ArrayList getDatasourcesIds() {
-		ArrayList list = new ArrayList();
-		// TODO Auto-generated method stub
-		return list;
-	}
-	
 	public class SessionInfo {
 		String id;
 		String version;
-		ArrayList<?> datasources = CommandLogin.this.getDatasourcesIds();
-		ArrayList<?> refs = CommandLogin.this.getReferencesIds();
+		transient ApplicationContext ctx;
+		ArrayList<?> datasources = null;
+		ArrayList<?> refs = null;
 		
 		public String getId() {
 			return id;
 		}
+		
 		public String getVersion() {
 			return version;
 		}
+		
+		@SuppressWarnings("rawtypes")
 		public ArrayList<?> getDatasources() {
+			if(datasources==null) {
+				datasources = new ArrayList();
+			}
 			return datasources;
 		}
 		public ArrayList<?> getRefs() {
