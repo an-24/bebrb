@@ -3,7 +3,7 @@ package org.bebrb.server.net;
 import java.io.OutputStream;
 import java.util.logging.Level;
 
-import org.bebrb.server.ApplicationContext;
+import org.bebrb.server.ApplicationContextImpl;
 import org.bebrb.server.SessionContextImpl;
 
 import com.google.gson.Gson;
@@ -28,15 +28,14 @@ public class CommandLogout extends Command {
 		try {
 			SessionContextImpl.loadSession(sessionId).logout();
 		} catch (Exception e) {
-			ApplicationContext.getLogger().log(Level.SEVERE,e.getMessage(),e);
+			ApplicationContextImpl.getLogger().log(Level.SEVERE,e.getMessage(),e);
 			// silence
 		}
 		Gson gson = CommandFactory.createGson();
 		writeToOutputStream(out, gson.toJson(response));
 	}
 	
-	public class Response {
-		int status = 0;
+	public class Response extends Command.Response {
 	}
 
 }

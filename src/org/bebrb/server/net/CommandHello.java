@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.bebrb.server.ApplicationContext;
+import org.bebrb.server.ApplicationContextImpl;
 
 import com.google.gson.Gson;
 
@@ -26,8 +26,8 @@ public class CommandHello extends Command {
 	@Override
 	public void solution(OutputStream out) throws WriteStreamException {
 		Response response = new Response();
-		List<ApplicationContext> apps = ApplicationContext.getApplications();
-		for (ApplicationContext ctx : apps) {
+		List<ApplicationContextImpl> apps = ApplicationContextImpl.getApplications();
+		for (ApplicationContextImpl ctx : apps) {
 			response.apps.add(new AppInfo(ctx.getName(),ctx.getTitle(),
 					ctx.getVersion().getRelease(),ctx.getLocale()));
 		};
@@ -66,8 +66,7 @@ public class CommandHello extends Command {
 		}
 	}
 
-	public class Response {
-		int status = 0;
+	public class Response extends Command.Response{
 		ArrayList<AppInfo> apps = new ArrayList<AppInfo>();
 		
 		public ArrayList<AppInfo> getApps() {

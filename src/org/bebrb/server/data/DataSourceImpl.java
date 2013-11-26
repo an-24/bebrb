@@ -1,6 +1,7 @@
 package org.bebrb.server.data;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -12,14 +13,13 @@ import org.bebrb.data.Record;
 import org.bebrb.data.RemoteFunction;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.reference.View;
-import org.bebrb.server.DataSourcesContext;
+import org.bebrb.server.DataSources;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class DataSourceImpl implements DataSource {
-
 	private String id;
 	private boolean lazy;
 	private CacheControl cc;
@@ -28,9 +28,12 @@ public class DataSourceImpl implements DataSource {
 	private RemoteFunction insRPC = null;
 	private RemoteFunction updRPC = null;
 	private RemoteFunction delRPC = null;
+	
 	private String sqlText = null;
+	// TODO from cache
+	private Date actualCacheDate = null;
 
-	public DataSourceImpl(Element el,DataSourcesContext dscontext) throws Exception {
+	public DataSourceImpl(Element el,DataSources dscontext) throws Exception {
 		id = el.getAttribute("id");
 		lazy = Boolean.parseBoolean(el.getAttribute("lazy"));
 		cc = DataSource.CacheControl.valueOf(el.getAttribute("cache-control"));
@@ -146,16 +149,20 @@ public class DataSourceImpl implements DataSource {
 
 	@Override
 	public List<DataPage> getDataPages() throws Exception {
-		notSupportedOnServer();
+		//TODO
 		return null;
 	}
 
 	@Override
 	public int getMaxSizeDataPage() {
-		notSupportedOnServer();
-		return 0;
+		return DEFAULT_PAGE_MAXSIZE;
 	}
 
+	@Override
+	public Date getActualDate() {
+		return  (cc != CacheControl.IsModified)?null:actualCacheDate;
+	}
+	
 	@Override
 	public Record findRecord(Object value, boolean onServer) throws Exception {
 		notSupportedOnServer();
@@ -226,5 +233,6 @@ public class DataSourceImpl implements DataSource {
 	public void removeValidator(OnValidate onvalidate) {
 		notSupportedOnServer();
 	}
+
 
 }

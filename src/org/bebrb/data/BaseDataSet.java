@@ -1,5 +1,6 @@
 package org.bebrb.data;
 
+import java.util.Date;
 import java.util.List;
 
 public interface BaseDataSet {
@@ -27,4 +28,9 @@ public interface BaseDataSet {
 	 * @return  не может быть null
 	 */
 	public DataSource.CacheControl getCacheControl();
+	/**
+	 * Возвращает дату на которую справочник содержит актуальную информацию.
+	 * @return для типа не {@link CacheControl#IsModified} возвращает null
+	 */
+	public Date getActualDate();
 }

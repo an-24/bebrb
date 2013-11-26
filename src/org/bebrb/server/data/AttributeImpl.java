@@ -24,6 +24,8 @@ public class AttributeImpl implements Attribute {
 		this.ds = ds;
 		name = el.getAttribute("name");
 		caption = el.getAttribute("caption");
+		if(caption.startsWith("@"))
+			caption = el.getAttribute(caption.substring(1));
 		type = Type.valueOf(el.getAttribute("type"));
 		visible = Boolean.parseBoolean(el.getAttribute("visible"));
 		mandatory = Boolean.parseBoolean(el.getAttribute("mandatory"));
@@ -99,6 +101,11 @@ public class AttributeImpl implements Attribute {
 	@Override
 	public int getMaxSizeChar() {
 		return size;
+	}
+	
+	@Override
+	public String toString() {
+		return name; 
 	}
 
 }

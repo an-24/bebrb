@@ -45,13 +45,6 @@ public interface ReferenceBookMetaData extends BaseDataSet {
 	 * @return не может быть null
 	 */
 	public ReferenceType getReferenceType();
-	
-	/**
-	 * Возвращает дату на которую справочник содержит актуальную информацию.
-	 * @return для типа {@link ReferenceType#Discriminator} возвращает null
-	 */
-	public Date getActualDate();
-	
 	/**
 	 * Атрибут-ссылка на родительский элемент
 	 * @return является null везде кроме справочников с типом {@link ReferenceType#Hierarchy} 

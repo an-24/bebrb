@@ -23,7 +23,7 @@ public class ModuleContext {
 	
 	public ModuleContext(File file) throws IOException, SAXException, ParserConfigurationException {
 		log.info("+++load module "+file.getAbsolutePath());
-		DocumentBuilder builder = ApplicationContext.createXMLBuider("/org/bebrb/resources/shema/module.xsd");
+		DocumentBuilder builder = ApplicationContextImpl.createXMLBuider("/org/bebrb/resources/shema/module.xsd");
 		Document doc = builder.parse(file.getAbsolutePath());
 		Element root = doc.getDocumentElement();
 		XMLUtils.enumChildren(root, new NotifyElement() {

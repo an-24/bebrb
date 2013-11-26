@@ -10,7 +10,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.bebrb.server.ApplicationContext;
+import org.bebrb.server.ApplicationContextImpl;
 import org.bebrb.server.ModuleContext;
 import org.bebrb.data.Argument;
 import org.bebrb.data.RemoteFunction;
@@ -54,7 +54,7 @@ public class RemoteFunctionImpl implements RemoteFunction {
 		if(cNames.length!=2) 
 			throw new SAXException("Invalid format attribute \"ref\"");
 		String uri = el.getOwnerDocument().lookupNamespaceURI(cNames[0]);
-		ApplicationContext appContext = ApplicationContext.getLoadingContext(); 
+		ApplicationContextImpl appContext = ApplicationContextImpl.getLoadingContext(); 
 		ModuleContext module = appContext.getModules().get(uri);
 		if(module==null) {
 			String baseuri = el.getOwnerDocument().getBaseURI();

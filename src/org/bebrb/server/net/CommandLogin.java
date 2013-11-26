@@ -1,11 +1,10 @@
 package org.bebrb.server.net;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
 
 import org.bebrb.context.SessionContext;
 import org.bebrb.context.UserAgent;
-import org.bebrb.server.ApplicationContext;
+import org.bebrb.server.ApplicationContextImpl;
 
 import com.google.gson.Gson;
 
@@ -69,14 +68,13 @@ public class CommandLogin extends Command {
 	public void solution(OutputStream out) throws WriteStreamException, Exception {
 		Response response = new Response();
 		
-		ApplicationContext ctx = new ApplicationContext(app);
+		ApplicationContextImpl ctx = new ApplicationContextImpl(app);
 		SessionContext session = ctx.login(user,pswd,userAgent);
 		if(session==null)
-			throw new Exception(ApplicationContext.getStrings().getString("loginError"));
+			throw new ExecuteException("loginError");
 		
 		response.session.id = session.getId();
 		response.session.version = ctx.getVersion().toString();
-		response.session.ctx = ctx;
 		
 		Gson gson = CommandFactory.createGson();
 		writeToOutputStream(out, gson.toJson(response));
@@ -85,9 +83,6 @@ public class CommandLogin extends Command {
 	public class SessionInfo {
 		String id;
 		String version;
-		transient ApplicationContext ctx;
-		ArrayList<?> datasources = null;
-		ArrayList<?> refs = null;
 		
 		public String getId() {
 			return id;
@@ -97,20 +92,9 @@ public class CommandLogin extends Command {
 			return version;
 		}
 		
-		@SuppressWarnings("rawtypes")
-		public ArrayList<?> getDatasources() {
-			if(datasources==null) {
-				datasources = new ArrayList();
-			}
-			return datasources;
-		}
-		public ArrayList<?> getRefs() {
-			return refs;
-		}
 	}
 
-	public class Response {
-		int status = 0;
+	public class Response extends Command.Response {
 		SessionInfo session = new SessionInfo();
 		
 		public SessionInfo getSession() {

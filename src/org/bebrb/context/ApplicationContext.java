@@ -4,6 +4,7 @@
 package org.bebrb.context;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.bebrb.data.DataSource;
@@ -11,6 +12,7 @@ import org.bebrb.forms.Action;
 import org.bebrb.forms.Form;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.user.User;
+import org.bebrb.utils.Version;
 
 /**
  * Контекст приложения.
@@ -49,9 +51,9 @@ public interface ApplicationContext  extends Context {
 	public SessionContext getActiveSession();
 	/**
 	 * Возвращает номер версии приложения
-	 * @return порядковый номер версии
+	 * @return не может быть null
 	 */
-	public int getVersion();
+	public Version getVersion();
 	/**
 	 * Возвращает активную форму на момент вызова.
 	 * @return форма, активная в данный момент. Не может быть null
@@ -66,13 +68,13 @@ public interface ApplicationContext  extends Context {
 	 * Список используемых справочников
 	 * @return
 	 */
-	public Set<ReferenceBook> getReferences();
+	public List<ReferenceBook> getReferences();
 	/**
 	 * Список используемых источников данных. Список источников содержит и источники,
 	 * представляющие справочники.
 	 * @return
 	 */
-	public Set<DataSource> getDataSources();
+	public List<DataSource> getDataSources();
 	/**
 	 * Список действий
 	 * @return не может быть null

@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 import org.bebrb.server.net.Command;
 import org.bebrb.server.net.Command.Type;
 import org.bebrb.server.net.CommandFactory;
+import org.bebrb.server.net.CommandGetAppContext;
 import org.bebrb.server.net.CommandHello;
 import org.bebrb.server.net.CommandLogin;
 import org.bebrb.server.net.CommandLogout;
@@ -125,6 +126,12 @@ public class Loader {
 			sr = send(new CommandLogin(response1.getApps().get(0).getName(),"sysAdmin","qwerty"));
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			CommandLogin.Response response2 = CommandFactory.createGson().fromJson(sr, CommandLogin.Response.class);
+			Thread.sleep(1000);
+			
+			// отправляем команду GetAppContext
+			sr = send(new CommandGetAppContext(response2.getSession().getId()));
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
+			CommandGetAppContext.Response response3 = CommandFactory.createGson().fromJson(sr, CommandGetAppContext.Response.class);
 			Thread.sleep(1000);
 			
 			// отправляем команду Logout

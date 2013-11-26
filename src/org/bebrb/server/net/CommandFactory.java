@@ -38,7 +38,7 @@ public class CommandFactory {
 		final String[] smessages = new String[stack.length];
 		for (int i = 0; i < stack.length; i++) 
 			smessages[i] = stack[i].toString();
-		return gson.toJson(new ErrorInfo(ex.getMessage(),smessages));
+		return gson.toJson(new ErrorInfo(ex.getClass().getName()+":"+ex.getMessage(),smessages));
 	}
 
 	public static Gson createGson() {

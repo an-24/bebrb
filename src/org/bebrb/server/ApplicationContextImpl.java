@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,20 +25,27 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import org.bebrb.context.ApplicationContext;
+import org.bebrb.context.Config;
 import org.bebrb.context.SessionContext;
 import org.bebrb.context.UserAgent;
+import org.bebrb.data.DataSource;
+import org.bebrb.forms.Action;
+import org.bebrb.forms.Form;
+import org.bebrb.reference.ReferenceBook;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.bebrb.user.User;
 import org.bebrb.utils.UTF8ResourceBundleControl;
+import org.bebrb.utils.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class ApplicationContext {
-	private static ApplicationContext loadedApp;
+public class ApplicationContextImpl implements ApplicationContext {
+	private static ApplicationContextImpl loadedApp;
 	
 	private String name;
 	private Version version = null;
@@ -45,20 +53,21 @@ public class ApplicationContext {
 	private Locale locale;
 
 	private static Logger log = Logger.getLogger("bebrb");
-	private DataSourcesContext datasources;
+	private DataSources datasources;
+	private References references;
 	private Map<String, ModuleContext> modules = new HashMap<String, ModuleContext>();
 	private List<String> dataModules = new ArrayList<String>();
 
 
 	private static ResourceBundle strings = null;
 	
-	public ApplicationContext(String name, Version version) {
+	public ApplicationContextImpl(String name, Version version) {
 		this.name = name;
 		this.version = version;
 		load();
 	}
 
-	public ApplicationContext(String name) {
+	public ApplicationContextImpl(String name) {
 		this.name = name;
 		String[] anames = name.split("/");
 		if(anames.length>1) {
@@ -87,7 +96,7 @@ public class ApplicationContext {
 			loadApplication();
 			strings = ResourceBundle.getBundle("org/bebrb/resources/strings/messages", locale, new UTF8ResourceBundleControl()); 
 			loadDataSources();
-			//TODO
+			loadReferences();
 			afterLoad();
 			loadedApp = null;
 			log.info("app loading process [ok]");
@@ -125,12 +134,12 @@ public class ApplicationContext {
 		});
 	}
 	
-	public static List<ApplicationContext> getApplications() {
+	public static List<ApplicationContextImpl> getApplications() {
 		File[] files = new File("applications").listFiles();
-		List<ApplicationContext> lactx = new ArrayList<ApplicationContext>();
+		List<ApplicationContextImpl> lactx = new ArrayList<ApplicationContextImpl>();
 		for (File file : files) 
 		if(file.isDirectory()) {
-			ApplicationContext ctx = new ApplicationContext(file.getName());
+			ApplicationContextImpl ctx = new ApplicationContextImpl(file.getName());
 			lactx.add(ctx);
 		}
 		return lactx;
@@ -157,10 +166,16 @@ public class ApplicationContext {
 	
 	private void loadDataSources() throws IOException, SAXException, ParserConfigurationException {
 		log.info("+start datasources loading process...");
-		datasources = new DataSourcesContext(this);
+		datasources = new DataSources(this);
 		log.info("-datasources loading process [ok]");
 	}
 
+	private void loadReferences() throws IOException, SAXException, ParserConfigurationException {
+		log.info("+start references loading process...");
+		references = new References(this);
+		log.info("-references loading process [ok]");
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -170,10 +185,6 @@ public class ApplicationContext {
 		return version;
 	}
 
-	public DataSourcesContext getDatasources() {
-		return datasources;
-	}
-	
 	public static DocumentBuilder createXMLBuider(String xsdPath) throws IOException, SAXException, ParserConfigurationException {
 		URL xsd = System.class.getResource(xsdPath);
 		if(xsd==null)
@@ -188,7 +199,7 @@ public class ApplicationContext {
 			
 			@Override
 			public void warning(SAXParseException exception) throws SAXException {
-				ApplicationContext.getLogger().warning(exception.getMessage());
+				ApplicationContextImpl.getLogger().warning(exception.getMessage());
 			}
 			
 			@Override
@@ -204,39 +215,8 @@ public class ApplicationContext {
 		return builder;
 	}
 
-	public static ApplicationContext getLoadingContext() {
+	public static ApplicationContextImpl getLoadingContext() {
 		return loadedApp;
-	}
-
-	public static class Version {
-		public final int major;
-		public final int minor;
-		public final int build;
-		
-		private Date release;
-
-		public Version(int major, int minor, int build) {
-			this.major = major;
-			this.minor = minor;
-			this.build = build;
-		}
-		public Version(String v) {
-			String[] vers = v.split("-");
-			major = new Integer(vers[0]);
-			minor = new Integer(vers[1]);
-			build = new Integer(vers[2]);
-		}
-
-		public Date getRelease() {
-			return release;
-		}
-		public void setRelease(Date release) {
-			this.release = release;
-		}
-
-		public String toString() {
-			return major+"-"+minor+"-"+build;
-		}
 	}
 
 	public SessionContext login(String user, String pswd, UserAgent userAgent) {
@@ -296,5 +276,69 @@ public class ApplicationContext {
 
 	public Locale getLocale() {
 		return locale;
+	}
+
+	@Override
+	public Config getConfig() {
+		// no implementation on server-side
+		return null;
+	}
+
+	@Override
+	public String getLocation() {
+		// no implementation on server-side
+		return null;
+	}
+
+	@Override
+	public Date getLastLoginDate() {
+		// TODO after implementation statistics db
+		return null;
+	}
+
+	@Override
+	public User getLastLoginUser() {
+		// TODO after implementation statistics db
+		return null;
+	}
+
+	@Override
+	public Set<User> getActiveUsers() {
+		// TODO after implementation statistics db
+		return null;
+	}
+
+	@Override
+	public SessionContext getActiveSession() {
+		// no implementation on server-side
+		return null;
+	}
+
+	@Override
+	public Form getActiveForm() {
+		// no implementation on server-side
+		return null;
+	}
+
+	@Override
+	public Form getMainForm() {
+		// no implementation on server-side
+		return null;
+	}
+
+	@Override
+	public List<ReferenceBook> getReferences() {
+		return references.getReferences();
+	}
+
+	@Override
+	public List<DataSource> getDataSources() {
+		return datasources.getDatasources();
+	}
+
+	@Override
+	public Set<Action> getActions() {
+		// no implementation on server-side
+		return null;
 	}
 }

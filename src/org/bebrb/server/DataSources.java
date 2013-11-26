@@ -24,14 +24,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-public class DataSourcesContext {
-	private ApplicationContext application;
+public class DataSources {
+	private ApplicationContextImpl application;
 	private List<ReferenceBook> refs = new ArrayList<ReferenceBook>();
 	private List<DataSource> datasources = new ArrayList<DataSource>();
 	private Map<String,BaseDataSet> indexDataSet = new HashMap<String,BaseDataSet>();
 	private Logger log = Logger.getLogger("bebrb");
 
-	public DataSourcesContext(ApplicationContext application) throws IOException, SAXException, ParserConfigurationException {
+	public DataSources(ApplicationContextImpl application) throws IOException, SAXException, ParserConfigurationException {
 		this.application = application;
 		load();
 	}
@@ -43,7 +43,7 @@ public class DataSourcesContext {
 
 	private void loadDataModule(String fname) throws IOException, SAXException,
 			ParserConfigurationException {
-		DocumentBuilder builder = ApplicationContext.createXMLBuider("/org/bebrb/resources/shema/ds.xsd");
+		DocumentBuilder builder = ApplicationContextImpl.createXMLBuider("/org/bebrb/resources/shema/ds.xsd");
 		Document doc = builder.parse(fname);
 		Element root = doc.getDocumentElement();
 		log.info("++load references...");
@@ -78,7 +78,7 @@ public class DataSourcesContext {
 			public boolean notify(Element e) {
 				log.info("  load datasource "+e.getAttribute("id"));
 				try {
-					DataSource ds = new DataSourceImpl(e, DataSourcesContext.this);
+					DataSource ds = new DataSourceImpl(e, DataSources.this);
 					if(indexDataSet.get(ds.getId())!=null)
 						throw new SAXException("Duplicate datasource Id ["+ds.getId()+"]");
 					datasources.add(ds);

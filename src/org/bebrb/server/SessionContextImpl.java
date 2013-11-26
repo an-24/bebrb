@@ -14,24 +14,24 @@ public class SessionContextImpl implements SessionContext {
 	
 	private BigInteger id;
 	private UserContext user;
-	private ApplicationContext appContext;
+	private ApplicationContextImpl appContext;
 	private Logger log;
 	
 	private static Map<BigInteger,SessionContextImpl> sessions = new HashMap<BigInteger,SessionContextImpl>(); 
 
-	protected SessionContextImpl(ApplicationContext appContext, BigInteger id, UserContext user)	{
+	protected SessionContextImpl(ApplicationContextImpl appContext, BigInteger id, UserContext user)	{
 		this.appContext = appContext;
 		this.id = id;
 		this.user = user;
 		this.log = Logger.getLogger("bebrb.session."+user.getUser().getLoginName());
 	}
 
-	protected SessionContextImpl(ApplicationContext appContext, UserContext user)	{
+	protected SessionContextImpl(ApplicationContextImpl appContext, UserContext user)	{
 		this(appContext,newId(),user);
 		sessions.put(id, this);
 	}
 	
-	public static SessionContext newSession(ApplicationContext appContext, UserContext user) {
+	public static SessionContext newSession(ApplicationContextImpl appContext, UserContext user) {
 		return new SessionContextImpl(appContext,user);
 	}
 	
@@ -71,6 +71,10 @@ public class SessionContextImpl implements SessionContext {
 	@Override
 	public Logger getLogger() {
 		return log;
+	}
+
+	public ApplicationContextImpl getAppContext() {
+		return appContext;
 	}
 
 }

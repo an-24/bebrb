@@ -29,11 +29,12 @@ public abstract class Command {
 	 * <li>Hello - welcome message. The answer to the query as a list of applications.  
 	 *
 	 */
-	public static enum Type {Hello,Login,Logout}
+	public static enum Type {Hello,Login,Logout,GetAppContext}
 	private static Class<?>[] classes = {
 		CommandHello.class,
 		CommandLogin.class,
-		CommandLogout.class
+		CommandLogout.class,
+		CommandGetAppContext.class
 	};
 	
 	public transient final Type type;
@@ -54,7 +55,7 @@ public abstract class Command {
 	
 	public static int getStatus(String response) {
 		Response result = CommandFactory.createGson().fromJson(response, Command.Response.class);
-		return result.status;
+		return result==null?ERROR:result.status;
 	}
 	
 	protected void writeToOutputStream(OutputStream out, String data) throws WriteStreamException {
