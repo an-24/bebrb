@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.bebrb.data.Attribute;
 import org.bebrb.data.DataSource;
 import org.bebrb.reference.ReferenceBookMetaData;
@@ -23,6 +25,7 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 	private Attribute keyAttribute = null;
 	private Attribute parentKey = null;
 	private boolean сanChoiseFolder = false;
+	private Date actualCacheDate;
 
 	public ReferenceBookMetaDataImpl(Element el) throws SAXException {
 		id = el.getAttribute("id");
@@ -30,6 +33,9 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 		history = Boolean.parseBoolean(el.getAttribute("history"));
 		type = ReferenceBookMetaData.ReferenceType.valueOf(el.getAttribute("type"));
 		cc = DataSource.CacheControl.valueOf(el.getAttribute("cache-control"));
+		if(cc==DataSource.CacheControl.IsModified)
+			if(el.getAttribute("actualDate").isEmpty()) actualCacheDate =  new Date();
+												   else actualCacheDate =  DatatypeConverter.parseDate(el.getAttribute("actualDate")).getTime();;
 		// attributes
 		XMLUtils.enumChildren(XMLUtils.findChild(el, "attributes"), new NotifyElement() {
 			@Override
@@ -89,8 +95,7 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 
 	@Override
 	public Date getActualDate() {
-		// TODO Auto-generated method stub
-		return null;
+		return actualCacheDate;
 	}
 
 	@Override

@@ -9,6 +9,7 @@
 			<data>
 				<datamodule name="datasources1.xml"/>
 			</data>
+			<database driver="com.microsoft.sqlserver.jdbc.SQLServerDriver" url="jdbc:sqlserver://localhost:1433;databaseName=test"/>
 		</ver>
 		<ver number="1-0-0"  release="2013-09-01">
 		    Первый официальный релиз

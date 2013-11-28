@@ -3,16 +3,27 @@ package org.bebrb.server.utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ReflectUtils {
 	
 	@SuppressWarnings("rawtypes")
-	public static <T extends Object, Y extends Object> void copyFields(T from, Y to) throws Exception {
-		if(from==null || to==null) return;
+	public static <T extends Object, Y extends Object> Y copyFields(T from, Y to) throws Exception {
+		if(from==null || to==null) return null;
 
+		if(isBoxing(from.getClass(),to.getClass()))	{
+			copy(from,to);
+			return to;
+		};
+		
+		if(to instanceof String)
+			return (Y) from.toString();
+		
 		// getters
 	    Class<? extends Object> fromClass = from.getClass();
 	    Method[] fromMethods = fromClass.getDeclaredMethods();
@@ -44,11 +55,35 @@ public class ReflectUtils {
 		                			ParameterizedType param = (ParameterizedType)tooF.getGenericType();
 		                			Type clsparam = param.getActualTypeArguments()[0];
 		                			Object obj = ((Class<? extends Object>) clsparam).newInstance();
-									copyFields(object, obj);
+		                			obj = copyFields(object, obj);
 		                			col.add(obj);
 								}
 		                	}
 		                	
+	            		} else
+	            		if(Map.class.isAssignableFrom(tooF.getType()) && Map.class.isAssignableFrom(fromM.getReturnType())) {
+	            			Map<?,?> sourcemap =  (Map<?, ?>) fromM.invoke(from);
+		                	tooF.setAccessible(true);
+		                	Map map =  (Map) tooF.get(to);
+		                	if(map==null) {
+		                		map = sourcemap.getClass().newInstance();
+		            			tooF.set(to,map);
+		                	}
+		                	if(tooF.isAnnotationPresent(CopyInDepth.class)) {
+		                		for (Entry object : sourcemap.entrySet()) {
+		                			ParameterizedType param = (ParameterizedType)tooF.getGenericType();
+		                			Type keyparam = param.getActualTypeArguments()[0];
+		                			Type valparam = param.getActualTypeArguments()[1];
+		                			
+		                			Object key = ((Class<? extends Object>) keyparam).newInstance();
+		                			key = copyFields(object.getKey(), key);
+
+		                			Object val = ((Class<? extends Object>) valparam).newInstance();
+		                			val = copyFields(object.getValue(), val);
+
+		                			map.put(key, val);
+								}
+		                	}
 	            		} else
 		            	if(tooF.isAnnotationPresent(CopyInDepth.class)) {
 		                	tooF.setAccessible(true);
@@ -59,7 +94,7 @@ public class ReflectUtils {
 			            			to1 = (Y) tooF.getType().newInstance();
 			            			tooF.set(to,to1);
 			            		}
-								copyFields(retObj, to1);
+			            		to1 = copyFields(retObj, to1);
 		                	}
 		            	} else
 		                if (tooF.getType().isAssignableFrom(String.class) || tooF.getType().isAssignableFrom(fromM.getReturnType())
@@ -69,7 +104,7 @@ public class ReflectUtils {
 		                	
 		                	tooF.setAccessible(true);
 		                	// Object->String
-		                	if(tooF.getType().isAssignableFrom(String.class) && !(retObj instanceof String))
+		                	if(retObj!=null && tooF.getType().isAssignableFrom(String.class) && !(retObj instanceof String))
 		                		retObj = retObj.toString();
 		                	// assign
 		                    tooF.set(to, retObj);
@@ -79,6 +114,28 @@ public class ReflectUtils {
 		} catch (InvocationTargetException e) {
 			throw (Exception)e.getTargetException();
 		}
+		return to;
+	}
+	
+	private static <T extends Object, Y extends Object> void copy(T from, Y to) throws Exception {
+		if(from==null || to==null) return;
+
+	    Class<? extends Object> fromClass = from.getClass();
+	    Field[] fromFields = fromClass.getDeclaredFields();
+
+	    Class<? extends Object> tooClass = to.getClass();
+	    Field[] tooFields = tooClass.getDeclaredFields();
+	    if (fromFields!=null && tooFields != null) 
+	        for (Field tooF : tooFields) {
+	        	Field fromF = findField(fromFields,tooF.getName());
+	        	if(fromF!=null && !Modifier.isFinal(tooF.getModifiers())) {
+	        		try {
+	        			tooF.set(to, fromF.get(from));
+	        		}	
+	        		catch (Throwable e) {
+					}	
+	        	}
+	        };
 	}
 
 	private static boolean isBoxing(Class<?> class1, Class<?> class2) {

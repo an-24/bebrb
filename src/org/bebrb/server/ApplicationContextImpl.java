@@ -54,7 +54,6 @@ public class ApplicationContextImpl implements ApplicationContext {
 
 	private static Logger log = Logger.getLogger("bebrb");
 	private DataSources datasources;
-	private References references;
 	private Map<String, ModuleContext> modules = new HashMap<String, ModuleContext>();
 	private List<String> dataModules = new ArrayList<String>();
 
@@ -96,7 +95,6 @@ public class ApplicationContextImpl implements ApplicationContext {
 			loadApplication();
 			strings = ResourceBundle.getBundle("org/bebrb/resources/strings/messages", locale, new UTF8ResourceBundleControl()); 
 			loadDataSources();
-			loadReferences();
 			afterLoad();
 			loadedApp = null;
 			log.info("app loading process [ok]");
@@ -165,17 +163,11 @@ public class ApplicationContextImpl implements ApplicationContext {
 	}
 	
 	private void loadDataSources() throws IOException, SAXException, ParserConfigurationException {
-		log.info("+start datasources loading process...");
+		log.info("+start data modules loading process...");
 		datasources = new DataSources(this);
-		log.info("-datasources loading process [ok]");
+		log.info("-data modules loading process [ok]");
 	}
 
-	private void loadReferences() throws IOException, SAXException, ParserConfigurationException {
-		log.info("+start references loading process...");
-		references = new References(this);
-		log.info("-references loading process [ok]");
-	}
-	
 	public String getName() {
 		return name;
 	}
@@ -328,7 +320,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 
 	@Override
 	public List<ReferenceBook> getReferences() {
-		return references.getReferences();
+		return datasources.getRefs();
 	}
 
 	@Override

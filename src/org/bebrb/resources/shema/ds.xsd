@@ -111,6 +111,8 @@
    		<attribute name="key" type="QName"/>
    		<attribute name="lazy" type="boolean" default="true"/>
  	    <attribute name="cache-control" type="tns:cacheControlType" default="None"/>
+ 	  	<!-- for cache-control = IsModified -->
+	  	<attribute name="actualDate" type="date"/>
     </complexType>
 
    	<complexType name="referenceType">
@@ -143,6 +145,8 @@
  	  <!-- TODO: check needed required if type = Hierarchy -->
  	  <attribute name="parentkey" type="QName"/>
  	  <attribute name="сanсhoisefolder" type="boolean"/>
+ 	  <!-- for cache-control = IsModified -->
+	  <attribute name="actualDate" type="date"/>
     </complexType>
 
    	<complexType name="viewType">

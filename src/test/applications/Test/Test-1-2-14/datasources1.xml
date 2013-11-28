@@ -5,7 +5,7 @@
 		xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<datasources>
 	  
-	  <datasource id="q2" key="document_id">
+	  <datasource id="q2" key="document_id" cache-control="IsModified">
 		  <sql><![CDATA[
 		    	select * 
 		    	from dual

@@ -49,5 +49,11 @@ public class ViewImpl implements View {
 		if(ref.getMetaData().getReferenceType()!=ReferenceType.Hierarchy) return null;
 		return root;
 	}
+	
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 
 }

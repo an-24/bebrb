@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.bebrb.data.Attribute;
 import org.bebrb.data.DataPage;
 import org.bebrb.data.DataSource;
@@ -37,7 +39,9 @@ public class DataSourceImpl implements DataSource {
 		id = el.getAttribute("id");
 		lazy = Boolean.parseBoolean(el.getAttribute("lazy"));
 		cc = DataSource.CacheControl.valueOf(el.getAttribute("cache-control"));
-		
+		if(cc==DataSource.CacheControl.IsModified)
+			if(el.getAttribute("actualDate").isEmpty()) actualCacheDate =  new Date();
+												   else actualCacheDate =  DatatypeConverter.parseDate(el.getAttribute("actualDate")).getTime();;
 		Element refref = XMLUtils.findChild(el, "reference");
 		if(refref!=null) {
 			if(refref.hasChildNodes())

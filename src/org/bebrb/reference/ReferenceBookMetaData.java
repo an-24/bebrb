@@ -3,7 +3,6 @@
  */
 package org.bebrb.reference;
 
-import java.util.Date;
 import org.bebrb.data.Attribute;
 import org.bebrb.data.BaseDataSet;
 

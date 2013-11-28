@@ -43,10 +43,11 @@ public class DataSources {
 
 	private void loadDataModule(String fname) throws IOException, SAXException,
 			ParserConfigurationException {
+		log.info("++load data module "+fname);
 		DocumentBuilder builder = ApplicationContextImpl.createXMLBuider("/org/bebrb/resources/shema/ds.xsd");
 		Document doc = builder.parse(fname);
 		Element root = doc.getDocumentElement();
-		log.info("++load references...");
+		log.info("+++load references...");
 		XMLUtils.enumChildren(XMLUtils.findChild(root,"references"),new NotifyElement(){
 
 			@Override
@@ -69,9 +70,9 @@ public class DataSources {
 				return false;
 			}
 		});
-		log.info("--load references [ok]");
+		log.info("---load references [ok]");
 		
-		log.info("++load datasources...");
+		log.info("+++load datasources...");
 		XMLUtils.enumChildren(XMLUtils.findChild(root,"datasources"),new NotifyElement(){
 
 			@Override
@@ -91,8 +92,8 @@ public class DataSources {
 				return false;
 			}
 		});
-		log.info("--load datasources [ok]");
-				
+		log.info("---load datasources [ok]");
+		log.info("--load data module [ok]");
 	}
 
 	public ReferenceBook findReference(String id) {
