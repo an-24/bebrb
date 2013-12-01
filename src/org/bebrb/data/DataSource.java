@@ -16,7 +16,7 @@ public interface DataSource extends BaseDataSet {
 	
 	/**
 	 * Тест на получение данных в момент обращения к ним
-	 * @return если false тогда данные получаются сразу при вызове {@link #getDataPages()}, иначе
+	 * @return если false тогда данные получаются сразу при вызове {@link #open(Map)}, иначе
 	 * данные получаются постранично при вызове  {@link DataPage#getRecords()}
 	 */
 	public boolean isLazy();
@@ -50,7 +50,7 @@ public interface DataSource extends BaseDataSet {
 	 * @return  не может быть null
 	 * @throws Exception
 	 */
-	public List<DataPage> getDataPages() throws Exception;
+	public List<DataPage> open(Map<String,Object> params) throws Exception;
 	
 	/**
 	 * @return максимальный размер пакета с данными

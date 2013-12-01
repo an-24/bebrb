@@ -27,8 +27,20 @@ public class XMLUtils {
 		}
 		return null;
 	}
+
+	public static Element findChild(Element parent, String tagname, final String attrName, String attrValue) {
+		NodeList nl = parent.getChildNodes();
+		for (int i = 0, len = nl.getLength(); i < len; i++) {
+			Node n = nl.item(i);
+			if(n instanceof Element && tagname.equals(n.getNodeName()) && 
+			  ((Element)n).getAttribute(attrName).equals(attrValue))
+				return (Element) n;
+		}
+		return null;
+	}
 	
 	public static void enumChildren(Element parent, NotifyElement event) {
+		if(parent==null) return;
 		NodeList nl = parent.getChildNodes();
 		for (int i = 0, len = nl.getLength(); i < len; i++) {
 			Node n = nl.item(i);

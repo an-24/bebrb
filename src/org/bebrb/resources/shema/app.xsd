@@ -10,6 +10,23 @@
 					<attribute name="lang" type="string" default=""/>
     	 		</complexType>
     	 	</element>
+    	 	<element name="performance" minOccurs="0">
+    	 		<complexType>
+    	 			<sequence>
+    	 				<element name="database-pool" minOccurs="0">
+    	 					<complexType>
+    	 						<attribute name="min" type="integer" default="1" use="optional"/>
+    	 						<attribute name="max" type="integer" use="required"/>
+    	 					</complexType>
+    	 				</element>
+    	 				<element name="threads" minOccurs="0">
+    	 					<complexType>
+    	 						<attribute name="max" type="integer" use="required"/>
+    	 					</complexType>
+    	 				</element>
+    	 			</sequence>
+    	 		</complexType>
+    	 	</element>
     	 	<element name="versions">
     	 		<complexType>
     	 			<sequence>

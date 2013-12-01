@@ -8,7 +8,7 @@
 	  <datasource id="q2" key="document_id" cache-control="IsModified">
 		  <sql><![CDATA[
 		    	select * 
-		    	from dual
+		    	from trade
 		  ]]></sql>
 		  <attributes>
 		  	<attribute type="Integer" name="document_id" visible="false"/>
@@ -16,39 +16,36 @@
 		  </attributes>
 	  </datasource>
 	  
-	  <datasource id="q1">
+	  <datasource id="q1" lazy="false">
 		  <reference id="r1" view="v1"></reference>
-		  <!-- 
-		  <sql><![CDATA[
-		    	select * 
-		    	from dual
-		    	]]></sql>
-		  -->
 	  </datasource>
 	</datasources>
 	
 	<references>
-	  <reference id="r1" type="Simple" title="Пример простого справочника" key="tclass_id">
+	  <reference id="r1" type="Simple" title="Поставщики" key="COMPANY_ID">
 	    <attributes>
-	    	<attribute type="Integer" name="tclass_id" visible="false"/>
-	    	<attribute type="String" size="60" name="tclass_name" caption="Имя класса"/>
-	    	<attribute type="Integer" name="par_class_id" visible="false" fkey="r1.tclass_id"/>
+	    	<attribute type="Integer" name="COMPANY_ID" visible="false"/>
+	    	<attribute type="String" name="COMPANY_NAME" size="80" caption="Поставщик"/>
+	    	<attribute type="String" name="COMPANY_ADDRESS" size="160" caption="Адрес поставщика"/>
 	    </attributes>
-	  	<views default="v2">
+	  	<views default="v1">
 	  		<view name="v1" title="По умолчанию">
 	  			<sql>
 	  			  <![CDATA[
-	    			select tclass_id,
-	    			       tclass_name,
-	    			       tclass_note 
-	    			from dual
+	    			select company_id,
+	    			       company_name,
+	    			       company_address 
+	    			from company
 	    			]]>
 	    			</sql>	
 	  		</view>
 	  		<view name="v2" title="Избранные">
 	  			<sql>
-	    			select * 
-	    			from dual
+	    			select company_id,
+	    			       company_name,
+	    			       company_address
+	    			from company
+	    			where company_name like :mask
 	    			</sql>	
 	  		</view>
 	  	</views>

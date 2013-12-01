@@ -32,7 +32,7 @@ public interface DataPage {
 	 * @return true если пакет последний, иначе false
 	 * @throws Exception возникает, если пакет еще не получил данные
 	 */
-	public boolean isEOF() throws Exception;
+	public boolean isEof() throws Exception;
 	
 	/**
 	 * Тест на то, что пакет получил все записи

@@ -30,6 +30,8 @@ public class DataSources {
 	private List<DataSource> datasources = new ArrayList<DataSource>();
 	private Map<String,BaseDataSet> indexDataSet = new HashMap<String,BaseDataSet>();
 	private Logger log = Logger.getLogger("bebrb");
+	private Map<String, ReferenceBook> refsHash = null;
+	private Map<String, DataSource> dsHash = null;
 
 	public DataSources(ApplicationContextImpl application) throws IOException, SAXException, ParserConfigurationException {
 		this.application = application;
@@ -97,23 +99,38 @@ public class DataSources {
 	}
 
 	public ReferenceBook findReference(String id) {
+		if(refsHash!=null) return refsHash.get(id);
 		for (ReferenceBook ref : refs) {
 			if(ref.getMetaData().getId().equals(id)) return ref;
+		}
+		return null;
+	}
+
+	public DataSource findDataSource(String id) {
+		if(dsHash!=null) return dsHash.get(id);
+		for (DataSource ds : datasources) {
+			if(ds.getId().equals(id)) return ds;
 		}
 		return null;
 	}
 	
 	public void afterLoad() throws Exception {
 		log.info("DataSources after load...");
+		refsHash = new HashMap<String,ReferenceBook>(refs.size());
 		// for refs
 		for (ReferenceBook ref : refs) {
 			for (Attribute attr : ref.getMetaData().getAttributes()) 
 				((AttributeImpl)attr).resolveForeignKey(indexDataSet);
+			// create hash
+			refsHash.put(ref.getMetaData().getId(),ref);
 		}
 		// for datasources
+		dsHash = new HashMap<String,DataSource>(datasources.size());
 		for (DataSource ds : datasources) {
 			for (Attribute attr : ds.getAttributes()) 
 				((AttributeImpl)attr).resolveForeignKey(indexDataSet);
+			// create hash
+			dsHash.put(ds.getId(),ds);
 		}
 		log.info("DataSources after load [ok]");
 	}

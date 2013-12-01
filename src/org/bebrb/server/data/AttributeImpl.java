@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.bebrb.data.Attribute;
 import org.bebrb.data.BaseDataSet;
+import org.bebrb.data.Field;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -108,4 +109,9 @@ public class AttributeImpl implements Attribute {
 		return name; 
 	}
 
+	public Field<?> createField() {
+		return null;
+		
+	}
+	
 }

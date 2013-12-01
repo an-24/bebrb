@@ -2,13 +2,19 @@ package org.bebrb.server;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bebrb.context.Config;
 import org.bebrb.context.SessionContext;
 import org.bebrb.context.UserContext;
+import org.bebrb.data.DataPage;
+
+import biz.gelicon.dbcp.ConnectionPool;
 
 public class SessionContextImpl implements SessionContext {
 	
@@ -16,7 +22,8 @@ public class SessionContextImpl implements SessionContext {
 	private UserContext user;
 	private ApplicationContextImpl appContext;
 	private Logger log;
-	
+	private ConnectionPool pool;
+	private Map<BigInteger, List<DataPage>> datasetCache =  new HashMap<>();
 	private static Map<BigInteger,SessionContextImpl> sessions = new HashMap<BigInteger,SessionContextImpl>(); 
 
 	protected SessionContextImpl(ApplicationContextImpl appContext, BigInteger id, UserContext user)	{
@@ -26,12 +33,13 @@ public class SessionContextImpl implements SessionContext {
 		this.log = Logger.getLogger("bebrb.session."+user.getUser().getLoginName());
 	}
 
-	protected SessionContextImpl(ApplicationContextImpl appContext, UserContext user)	{
+	protected SessionContextImpl(ApplicationContextImpl appContext, UserContext user) throws ClassNotFoundException	{
 		this(appContext,newId(),user);
 		sessions.put(id, this);
+		pool = appContext.getDatabasePool();
 	}
 	
-	public static SessionContext newSession(ApplicationContextImpl appContext, UserContext user) {
+	public static SessionContext newSession(ApplicationContextImpl appContext, UserContext user) throws ClassNotFoundException {
 		return new SessionContextImpl(appContext,user);
 	}
 	
@@ -77,4 +85,12 @@ public class SessionContextImpl implements SessionContext {
 		return appContext;
 	}
 
+	public Connection getConnection() throws SQLException {
+		return pool.getConnection();
+	}
+
+	public Map<BigInteger,List<DataPage>> getDatasetCache() {
+		return datasetCache;
+	}
+	
 }

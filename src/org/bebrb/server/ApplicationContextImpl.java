@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
@@ -44,6 +45,9 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import biz.gelicon.dbcp.ConnectionPool;
+import biz.gelicon.dbcp.DriverManagerConnectionFactory;
+
 public class ApplicationContextImpl implements ApplicationContext {
 	private static ApplicationContextImpl loadedApp;
 	
@@ -56,6 +60,18 @@ public class ApplicationContextImpl implements ApplicationContext {
 	private DataSources datasources;
 	private Map<String, ModuleContext> modules = new HashMap<String, ModuleContext>();
 	private List<String> dataModules = new ArrayList<String>();
+
+	private String dbDriverName;
+	private String dbUrl;
+	private String dbSysUser;
+	private String dbSysPswd;
+	private Properties dbParams = new Properties();
+
+	private int dbPoolMin = 1;
+	private int dbPoolMax = 4;
+	private int maxRequestThreads = 6;
+
+	private ConnectionPool pool;
 
 
 	private static ResourceBundle strings = null;
@@ -82,6 +98,10 @@ public class ApplicationContextImpl implements ApplicationContext {
 
 	public static Logger getLogger() {
 		return log;
+	}
+	
+	public DataSources getDataSourceManager() {
+		return datasources;
 	}
 
 	public String getTitle() {
@@ -116,12 +136,29 @@ public class ApplicationContextImpl implements ApplicationContext {
 			String sver = XMLUtils.findChild(root, "versions").getAttribute("default");
 			version = new Version(sver);
 		}
-		Element el = XMLUtils.findChild(XMLUtils.findChild(root, "versions"),"number",version.toString());
+		Element el = XMLUtils.findChild(XMLUtils.findChild(root, "versions"),"ver", "number",version.toString());
 		if(el==null)
 			throw new SAXException("Version "+version+" not found");
 		
 		Date release = DatatypeConverter.parseDate(el.getAttribute("release")).getTime();
 		version.setRelease(release);
+		
+		Element dbel = XMLUtils.findChild(el, "database");
+		dbDriverName = dbel.getAttribute("driver");
+		dbUrl = dbel.getAttribute("url");
+		dbSysUser = dbel.getAttribute("user");
+		if(dbSysUser.isEmpty()) dbSysUser = null;
+		dbSysPswd = dbel.getAttribute("password");
+		if(dbSysPswd.isEmpty()) dbSysPswd = null;
+		XMLUtils.enumChildren(XMLUtils.findChild(dbel,"params"),new NotifyElement() {
+			@Override
+			public boolean notify(Element e) {
+				if(e.getNodeName().equals("param")) {
+					dbParams.put(e.getAttribute("name"), e.getAttribute("value"));
+				}
+				return false;
+			}
+		});
 		
 		XMLUtils.enumChildren(XMLUtils.findChild(el, "data"), new NotifyElement() {
 			@Override
@@ -130,6 +167,20 @@ public class ApplicationContextImpl implements ApplicationContext {
 				return false;
 			}
 		});
+
+		Element perfel = XMLUtils.findChild(root, "performance");
+		if(perfel!=null) {
+			Element poolel = XMLUtils.findChild(perfel, "database-pool");
+			if(poolel!=null) {
+				if(poolel.getAttributeNode("max")!=null)
+					dbPoolMax = Integer.valueOf(poolel.getAttribute("max"));
+				if(poolel.getAttributeNode("min")!=null)
+					dbPoolMin = Integer.valueOf(poolel.getAttribute("min"));
+			}
+			Element threadsel = XMLUtils.findChild(perfel, "threads");
+			if(threadsel!=null)
+				maxRequestThreads = Integer.valueOf(poolel.getAttribute("max"));
+		}
 	}
 	
 	public static List<ApplicationContextImpl> getApplications() {
@@ -243,8 +294,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 		try {
 			if(hashPassword(pswd).equals(hashPswd))
 				return new SessionContextImpl(this, new UserContextImpl(puser,userAgent));
-			
-		} catch (NoSuchAlgorithmException e) {
+		} catch (Exception e) {
 			log.log(Level.SEVERE, "Error login", e);
 		}
 		return null;
@@ -327,10 +377,21 @@ public class ApplicationContextImpl implements ApplicationContext {
 	public List<DataSource> getDataSources() {
 		return datasources.getDatasources();
 	}
-
+	
 	@Override
 	public Set<Action> getActions() {
 		// no implementation on server-side
 		return null;
+	}
+
+	public ConnectionPool getDatabasePool() throws ClassNotFoundException {
+		if(pool==null && dbDriverName!=null) {
+			Properties props = new Properties(dbParams);
+			if(dbSysUser!=null) props.put("user", dbSysUser);
+			if(dbSysPswd!=null) props.put("password", dbSysPswd);
+			pool = new ConnectionPool(new DriverManagerConnectionFactory(dbDriverName, dbUrl, props), 
+					dbPoolMin, dbPoolMax);
+		}
+		return pool;
 	}
 }

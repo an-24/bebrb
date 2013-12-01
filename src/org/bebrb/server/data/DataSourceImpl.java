@@ -1,9 +1,14 @@
 package org.bebrb.server.data;
 
+import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -16,6 +21,8 @@ import org.bebrb.data.RemoteFunction;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.reference.View;
 import org.bebrb.server.DataSources;
+import org.bebrb.server.SessionContextImpl;
+import org.bebrb.server.net.ExecuteException;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.w3c.dom.Element;
@@ -30,89 +37,112 @@ public class DataSourceImpl implements DataSource {
 	private RemoteFunction insRPC = null;
 	private RemoteFunction updRPC = null;
 	private RemoteFunction delRPC = null;
-	
+	private int sizeDataPage = DEFAULT_PAGE_MAXSIZE;
+
 	private String sqlText = null;
 	// TODO from cache
 	private Date actualCacheDate = null;
+	
+	private PreparedStatement statement;
+	private PreparedStatement statementCount;
+	private String inSQL;
+	private List<String> inParams = new ArrayList<>();
 
-	public DataSourceImpl(Element el,DataSources dscontext) throws Exception {
+	public DataSourceImpl(Element el, DataSources dscontext) throws Exception {
 		id = el.getAttribute("id");
 		lazy = Boolean.parseBoolean(el.getAttribute("lazy"));
 		cc = DataSource.CacheControl.valueOf(el.getAttribute("cache-control"));
-		if(cc==DataSource.CacheControl.IsModified)
-			if(el.getAttribute("actualDate").isEmpty()) actualCacheDate =  new Date();
-												   else actualCacheDate =  DatatypeConverter.parseDate(el.getAttribute("actualDate")).getTime();;
+		if (cc == DataSource.CacheControl.IsModified)
+			if (el.getAttribute("actualDate").isEmpty())
+				actualCacheDate = new Date();
+			else
+				actualCacheDate = DatatypeConverter.parseDate(
+						el.getAttribute("actualDate")).getTime();
+		;
 		Element refref = XMLUtils.findChild(el, "reference");
-		if(refref!=null) {
-			if(refref.hasChildNodes())
-				throw new SAXException("Datasource "+id+" is not empty body. Required or not an empty attribute \"reference\" or non-empty body datasource");
-			ReferenceBook rbook = dscontext.findReference(refref.getAttribute("id"));
-			if(rbook==null)
-				throw new SAXException("Reference book["+refref.getAttribute("id")+"] not found");
+		if (refref != null) {
+			if (refref.hasChildNodes())
+				throw new SAXException(
+						"Datasource "
+								+ id
+								+ " is not empty body. Required or not an empty attribute \"reference\" or non-empty body datasource");
+			ReferenceBook rbook = dscontext.findReference(refref
+					.getAttribute("id"));
+			if (rbook == null)
+				throw new SAXException("Reference book["
+						+ refref.getAttribute("id") + "] not found");
 			View rbview = rbook.getViews().get(refref.getAttribute("view"));
-			if(rbview==null)
-				throw new SAXException("View["+refref.getAttribute("view")+"] in reference book["+refref.getAttribute("id")+"] not found");
+			if (rbview == null)
+				throw new SAXException("View[" + refref.getAttribute("view")
+						+ "] in reference book[" + refref.getAttribute("id")
+						+ "] not found");
 			attrs.addAll(rbook.getMetaData().getAttributes());
 			keyAttribute = rbook.getMetaData().getKey();
 			insRPC = rbook.getInsertFunc();
 			updRPC = rbook.getUpdateFunc();
 			delRPC = rbook.getDeleteFunc();
-			
+			sqlText = ((ViewImpl)rbview).getSQL();
 		} else {
 			sqlText = XMLUtils.getText(XMLUtils.findChild(el, "sql"));
 			// attributes
-			XMLUtils.enumChildren(XMLUtils.findChild(el, "attributes"), new NotifyElement() {
-				@Override
-				public boolean notify(Element e) {
-					try {
-						attrs.add(new AttributeImpl(e,DataSourceImpl.this));
-					} catch (SAXException e1) {
-						RuntimeException re = new RuntimeException(e1.getMessage());
-						re.initCause(e1);
-						throw re;
-					}
-					return false;
-				}
-			});
+			XMLUtils.enumChildren(XMLUtils.findChild(el, "attributes"),
+					new NotifyElement() {
+						@Override
+						public boolean notify(Element e) {
+							try {
+								attrs.add(new AttributeImpl(e,
+										DataSourceImpl.this));
+							} catch (SAXException e1) {
+								RuntimeException re = new RuntimeException(e1
+										.getMessage());
+								re.initCause(e1);
+								throw re;
+							}
+							return false;
+						}
+					});
 			// set key
 			keyAttribute = findAttribute(el.getAttribute("key"));
-			if(keyAttribute==null)
+			if (keyAttribute == null)
 				throw new SAXException("For key attribute not found");
-			((AttributeImpl)keyAttribute).setKey(true);
-			
+			((AttributeImpl) keyAttribute).setKey(true);
+
 			Element efunc;
-			
+
 			efunc = XMLUtils.findChild(el, "insert");
-			if(efunc!=null) insRPC = new RemoteFunctionImpl(efunc);
+			if (efunc != null)
+				insRPC = new RemoteFunctionImpl(efunc);
 
 			efunc = XMLUtils.findChild(el, "update");
-			if(efunc!=null) updRPC = new RemoteFunctionImpl(efunc);
-			
+			if (efunc != null)
+				updRPC = new RemoteFunctionImpl(efunc);
+
 			efunc = XMLUtils.findChild(el, "delete");
-			if(efunc!=null) delRPC = new RemoteFunctionImpl(efunc);
+			if (efunc != null)
+				delRPC = new RemoteFunctionImpl(efunc);
 		}
 	}
 
 	private Attribute findAttribute(String key) {
 		for (Attribute attr : attrs) {
-			if(attr.getName().equalsIgnoreCase(key)) {
+			if (attr.getName().equalsIgnoreCase(key)) {
 				return attr;
 			}
 		}
 		return null;
 	}
-	
+
 	private void notSupportedOnServer() {
 		throw new RuntimeException("Not supported on server-side");
 	}
-	
+
 	@Override
 	public String getId() {
 		return id;
 	}
 
 	@Override
-	public List<Attribute> getAttributes() throws Exception {
+	public List<Attribute> getAttributes(){
 		return attrs;
 	}
 
@@ -133,40 +163,40 @@ public class DataSourceImpl implements DataSource {
 
 	@Override
 	public boolean isReadOnly() {
-		return insRPC==null && updRPC==null && delRPC==null;
+		return insRPC == null && updRPC == null && delRPC == null;
 	}
 
 	@Override
 	public boolean isCanAdd() {
-		return insRPC!=null;
+		return insRPC != null;
 	}
 
 	@Override
 	public boolean isCanDelete() {
-		return delRPC!=null;
+		return delRPC != null;
 	}
 
 	@Override
 	public boolean isCanEdit() {
-		return updRPC!=null;
+		return updRPC != null;
 	}
 
 	@Override
-	public List<DataPage> getDataPages() throws Exception {
-		//TODO
+	public List<DataPage> open(Map<String, Object> params) throws Exception {
+		notSupportedOnServer();
 		return null;
 	}
 
 	@Override
 	public int getMaxSizeDataPage() {
-		return DEFAULT_PAGE_MAXSIZE;
+		return sizeDataPage ;
 	}
 
 	@Override
 	public Date getActualDate() {
-		return  (cc != CacheControl.IsModified)?null:actualCacheDate;
+		return (cc != CacheControl.IsModified) ? null : actualCacheDate;
 	}
-	
+
 	@Override
 	public Record findRecord(Object value, boolean onServer) throws Exception {
 		notSupportedOnServer();
@@ -237,6 +267,66 @@ public class DataSourceImpl implements DataSource {
 	public void removeValidator(OnValidate onvalidate) {
 		notSupportedOnServer();
 	}
+	
+	public List<DataPage> innerOpen(Connection con, Map<String, Object> params, BigInteger cursorId, SessionContextImpl session)
+			throws Exception {
+		// prepare
+		if (statement == null) {
+			parse(sqlText, params);
+			statement = con.prepareStatement(inSQL);
+			statementCount = con.prepareStatement("select count(*) from("+inSQL+")");
+		}
+		// params
+		int i = 1;
+		for (String pname : inParams) {
+			statement.setObject(i++, params.get(pname));
+			statementCount.setObject(i++, params.get(pname));
+		}
+		// pages count
+		int pcount = 0;
+		try(ResultSet rs = statementCount.executeQuery()) {
+			rs.next();
+			int crecords = rs.getInt(1);
+			pcount = crecords/sizeDataPage+crecords%sizeDataPage!=0?1:0;
+		}
+		if(pcount==0) return null;
+		
+		List<DataPage> pages = new ArrayList<DataPage>(pcount);
+		// fetch data
+		ResultSet rs = statement.executeQuery();
+		try {
+			for (int pIdx = 0; pIdx < pcount; pIdx++) {
+				pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, pIdx==(pcount-1)));
+			}
+		} finally {
+			if(!lazy) rs.close();
+		}
+		
+		return pages;
+	}
 
+	private void parse(String sql, Map<String, Object> params)
+			throws ExecuteException {
+		inParams.clear();
+		StringBuilder sb = new StringBuilder();
+		StringTokenizer parser = new StringTokenizer(sql);
+		while (parser.hasMoreTokens()) {
+			String token = parser.nextToken();
+			switch (token) {
+			case ":":
+				String pname = parser.nextToken();
+				if (params.get(pname) == null)
+					throw new ExecuteException("SQLParamNotFound", id + "."
+							+ pname);
+				inParams.add(pname);
+				sb.append("?");
+				break;
+			default:
+				sb.append(token);
+			}
+			sb.append(" ");
+		}
+		inSQL = sb.toString();
+	}
 
 }

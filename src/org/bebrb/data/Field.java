@@ -8,7 +8,6 @@ import java.io.OutputStream;
 
 /**
  * Поле источника данных.
- * @author Andrey Klyuev
  *
  * @param <T> тип поля
  */

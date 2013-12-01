@@ -55,5 +55,9 @@ public class ViewImpl implements View {
 	public String toString() {
 		return name;
 	}
+	
+	public String getSQL() {
+		return sqlTxt;
+	}
 
 }

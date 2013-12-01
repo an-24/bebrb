@@ -29,12 +29,13 @@ public abstract class Command {
 	 * <li>Hello - welcome message. The answer to the query as a list of applications.  
 	 *
 	 */
-	public static enum Type {Hello,Login,Logout,GetAppContext}
+	public static enum Type {Hello,Login,Logout,GetAppContext,OpenDatasource}
 	private static Class<?>[] classes = {
 		CommandHello.class,
 		CommandLogin.class,
 		CommandLogout.class,
-		CommandGetAppContext.class
+		CommandGetAppContext.class,
+		CommandOpenDatasource.class
 	};
 	
 	public transient final Type type;

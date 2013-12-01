@@ -17,7 +17,7 @@ public interface BaseDataSet {
 	 * Возвращает список атрибутов источника данных
 	 * @return не может быть null
 	 */
-	public List<Attribute> getAttributes() throws Exception;
+	public List<Attribute> getAttributes();
 	/**
 	 * Ключевой атрибут
 	 * @return не может быть null

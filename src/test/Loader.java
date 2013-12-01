@@ -25,6 +25,7 @@ import org.bebrb.server.net.CommandGetAppContext;
 import org.bebrb.server.net.CommandHello;
 import org.bebrb.server.net.CommandLogin;
 import org.bebrb.server.net.CommandLogout;
+import org.bebrb.server.net.CommandOpenDatasource;
 import org.bebrb.server.net.WriteStreamException;
 
 public class Loader {
@@ -133,12 +134,19 @@ public class Loader {
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			CommandGetAppContext.Response response3 = CommandFactory.createGson().fromJson(sr, CommandGetAppContext.Response.class);
 			Thread.sleep(1000);
+
+			// отправляем команду OpenDataset
+			sr = send(new CommandOpenDatasource(response2.getSession().getId(),"q1", null));
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
+			Thread.sleep(1000);
 			
 			// отправляем команду Logout
 			send(new CommandLogout(response2.getSession().getId()));
 			Thread.sleep(1000);
 		 			
-			System.out.println("main finish");			
+			System.out.println("main finish");
+			
+			Runtime.getRuntime().halt(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
