@@ -10,7 +10,8 @@
 				<datamodule name="datasources1.xml"/>
 			</data>
 			<!--<database driver="com.microsoft.sqlserver.jdbc.SQLServerDriver" url="jdbc:sqlserver://localhost:1433;databaseName=test"/> -->
-			<database driver="org.firebirdsql.jdbc.FBDriver" url="jdbc:firebirdsql:localhost/3050:D:\WORK\bebrb\src\test\db\fb\test.fdb" user="sysdba" password="masterkey">
+			<!--<database driver="org.firebirdsql.jdbc.FBDriver" url="jdbc:firebirdsql:localhost/3050:D:\WORK\bebrb\src\test\db\fb\test.fdb" user="sysdba" password="masterkey"> -->
+			<database driver="org.firebirdsql.jdbc.FBDriver" url="jdbc:firebirdsql:localhost/3050:/Users/andrej/Documents/workspace/bebrb/src/test/db/fb/test.fdb" user="sysdba" password="rolling">
 				<params>
 					<param name="charSet" value="UTF-8"/>
 					<param name="encoding" value="UTF8"/>

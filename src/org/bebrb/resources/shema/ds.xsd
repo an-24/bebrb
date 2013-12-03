@@ -106,6 +106,7 @@
    					</complexType>
    				</element>
    			</choice>
+   			<element name="database" type="tns:databaseType" minOccurs="0"/>
    		</sequence>
    		<attribute name="id" type="QName" use="required"/>
    		<attribute name="key" type="QName"/>
@@ -215,5 +216,25 @@
 		<attribute name="size" type="integer"/>
 		<attribute name="fkey" type="string"/>
     </complexType>
- 
+    
+    <complexType name="databaseType">
+    		<sequence>
+ 	 		<element name="params" minOccurs="0" maxOccurs="unbounded">
+ 	 			<complexType>
+ 	 				<sequence>
+    	 					<element name="param" minOccurs="0" maxOccurs="unbounded">
+    	 						<complexType>
+    	 							<attribute name="name" type="string" use="required"/>
+    	 							<attribute name="value" type="string" use="required"/>
+    	 						</complexType>
+    	 					</element>
+ 	 				</sequence>
+ 	 			</complexType>
+ 	 		</element>
+	    	</sequence>
+		<attribute name="driver" type="string" use="required"/>
+		<attribute name="url" type="anyURI" use="required"/>
+		<attribute name="user" type="string"/>
+		<attribute name="password" type="string"/>
+	</complexType>
 </schema>

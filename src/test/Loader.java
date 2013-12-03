@@ -149,6 +149,7 @@ public class Loader {
 			Runtime.getRuntime().halt(0);
 		} catch (Exception e) {
 			e.printStackTrace();
+			Runtime.getRuntime().halt(0);
 		}
 	}
 

@@ -2,12 +2,16 @@ package org.bebrb.server.data;
 
 import java.math.BigInteger;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.xml.bind.DatatypeConverter;
@@ -47,6 +51,7 @@ public class DataSourceImpl implements DataSource {
 	private PreparedStatement statementCount;
 	private String inSQL;
 	private List<String> inParams = new ArrayList<>();
+	private DatabaseInfo dbinf = null;
 
 	public DataSourceImpl(Element el, DataSources dscontext) throws Exception {
 		id = el.getAttribute("id");
@@ -58,7 +63,6 @@ public class DataSourceImpl implements DataSource {
 			else
 				actualCacheDate = DatatypeConverter.parseDate(
 						el.getAttribute("actualDate")).getTime();
-		;
 		Element refref = XMLUtils.findChild(el, "reference");
 		if (refref != null) {
 			if (refref.hasChildNodes())
@@ -120,6 +124,10 @@ public class DataSourceImpl implements DataSource {
 			efunc = XMLUtils.findChild(el, "delete");
 			if (efunc != null)
 				delRPC = new RemoteFunctionImpl(efunc);
+		}
+		Element edb = XMLUtils.findChild(el,"database");
+		if(edb!=null) {
+			dbinf = new DatabaseInfo(edb);
 		}
 	}
 
@@ -270,39 +278,47 @@ public class DataSourceImpl implements DataSource {
 	
 	public List<DataPage> innerOpen(Connection con, Map<String, Object> params, BigInteger cursorId, SessionContextImpl session)
 			throws Exception {
-		// prepare
-		if (statement == null) {
-			parse(sqlText, params);
-			statement = con.prepareStatement(inSQL);
-			statementCount = con.prepareStatement("select count(*) from("+inSQL+")");
-		}
-		// params
-		int i = 1;
-		for (String pname : inParams) {
-			statement.setObject(i++, params.get(pname));
-			statementCount.setObject(i++, params.get(pname));
-		}
-		// pages count
-		int pcount = 0;
-		try(ResultSet rs = statementCount.executeQuery()) {
-			rs.next();
-			int crecords = rs.getInt(1);
-			pcount = crecords/sizeDataPage+crecords%sizeDataPage!=0?1:0;
-		}
-		if(pcount==0) return null;
 		
-		List<DataPage> pages = new ArrayList<DataPage>(pcount);
-		// fetch data
-		ResultSet rs = statement.executeQuery();
-		try {
-			for (int pIdx = 0; pIdx < pcount; pIdx++) {
-				pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, pIdx==(pcount-1)));
+		if(dbinf!=null) con = dbinf.connect();
+		
+		try{
+			// prepare
+			if (statement == null) {
+				parse(sqlText, params);
+				statement = con.prepareStatement(inSQL);
+				statementCount = con.prepareStatement("select count(*) from("+inSQL+")");
 			}
+			// params
+			int i = 1;
+			for (String pname : inParams) {
+				statement.setObject(i++, params.get(pname));
+				statementCount.setObject(i++, params.get(pname));
+			}
+			// pages count
+			int pcount = 0;
+			try(ResultSet rs = statementCount.executeQuery()) {
+				rs.next();
+				int crecords = rs.getInt(1);
+				pcount = crecords/sizeDataPage+crecords%sizeDataPage!=0?1:0;
+			}
+			if(pcount==0) return null;
+			
+			List<DataPage> pages = new ArrayList<DataPage>(pcount);
+			// fetch data
+			ResultSet rs = statement.executeQuery();
+			try {
+				for (int pIdx = 0; pIdx < pcount; pIdx++) {
+					pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, pIdx==(pcount-1)));
+				}
+			} finally {
+				if(!lazy) rs.close();
+			}
+			
+			return pages;
+			
 		} finally {
-			if(!lazy) rs.close();
+			if(dbinf!=null) con.close();			
 		}
-		
-		return pages;
 	}
 
 	private void parse(String sql, Map<String, Object> params)
@@ -327,6 +343,41 @@ public class DataSourceImpl implements DataSource {
 			sb.append(" ");
 		}
 		inSQL = sb.toString();
+	}
+	
+	class DatabaseInfo {
+		private String dbDriverName;
+		private String dbUrl;
+		private String dbSysUser;
+		private String dbSysPswd;
+		private Properties dbParams = new Properties();
+
+		DatabaseInfo(Element dbel) {
+			dbDriverName = dbel.getAttribute("driver");
+			dbUrl = dbel.getAttribute("url");
+			dbSysUser = dbel.getAttribute("user");
+			if(dbSysUser.isEmpty()) dbSysUser = null;
+			dbSysPswd = dbel.getAttribute("password");
+			if(dbSysPswd.isEmpty()) dbSysPswd = null;
+			XMLUtils.enumChildren(XMLUtils.findChild(dbel,"params"),new NotifyElement() {
+
+				@Override
+				public boolean notify(Element e) {
+					if(e.getNodeName().equals("param")) {
+						dbParams.put(e.getAttribute("name"), e.getAttribute("value"));
+					}
+					return false;
+				}
+			});
+		}
+		
+		Connection connect() throws SQLException {
+			Properties props = new Properties(dbParams);
+			if(dbSysUser!=null) props.put("user", dbSysUser);
+			if(dbSysPswd!=null) props.put("password", dbSysPswd);
+			return DriverManager.getConnection(dbUrl,dbParams);
+		}
+		
 	}
 
 }
