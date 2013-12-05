@@ -64,6 +64,7 @@
 											<attribute name="url" type="anyURI" use="required"/>
 											<attribute name="user" type="string"/>
 											<attribute name="password" type="string"/>
+											<attribute name="ident-case-sensitive" type="boolean" default="true"/>
 						    	 		</complexType>
 						    	 	</element>
     	 						</sequence>

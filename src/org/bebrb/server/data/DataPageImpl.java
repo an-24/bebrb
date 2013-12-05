@@ -27,9 +27,16 @@ public class DataPageImpl implements DataPage {
 	private BigInteger cursorId;
 	private SessionContextImpl session;
 	private int maxCount;
+	private boolean caseSensitive;
 
 	public DataPageImpl(BigInteger cursorId, SessionContextImpl session,
 			ResultSet rs, DataSourceImpl ds, boolean lazy, boolean eof)
+			throws Exception {
+		this(cursorId,session,rs,ds,lazy,eof,session.getAppContext().isIdentCaseSensitive());
+	}
+
+	public DataPageImpl(BigInteger cursorId, SessionContextImpl session,
+			ResultSet rs, DataSourceImpl ds, boolean lazy, boolean eof, boolean caseSensitive)
 			throws Exception {
 		this.session = session;
 		this.cursorId = cursorId;
@@ -38,10 +45,11 @@ public class DataPageImpl implements DataPage {
 		this.eof = eof;
 		this.maxCount = ds.getMaxSizeDataPage();
 		records = new ArrayList<>(maxCount);
+		this.caseSensitive = caseSensitive;
 		if (!lazy) fetch();
 		alive = !lazy;
 	}
-
+	
 	private void fetch() throws SQLException, ExecuteException {
 		if(alive) return;
 		// fetch prev data pages
@@ -62,10 +70,12 @@ public class DataPageImpl implements DataPage {
 		Map<String,Integer> fieldmap = new HashMap<>();
 		for (int i = 0, len = rsmd.getColumnCount(); i < len; i++) {
 			String l = rsmd.getColumnLabel(i+1);
-			fieldmap.put(l==null?rsmd.getColumnName(i+1):l, i+1);
+			String fname = l==null?rsmd.getColumnName(i+1):l; 
+			fieldmap.put(caseSensitive?fname:fname.toUpperCase(), i+1);
 		}
 		for (int i = 0; i < map.length; i++) {
-			Integer idx = fieldmap.get(attrs.get(i).getName());
+			String fname = attrs.get(i).getName();
+			Integer idx = fieldmap.get(caseSensitive?fname:fname.toUpperCase());
 			if(idx==null)
 				throw new ExecuteException("FieldNotFound",attrs.get(i).getName());
 			map[i] = idx; 

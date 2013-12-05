@@ -308,7 +308,12 @@ public class DataSourceImpl implements DataSource {
 			ResultSet rs = statement.executeQuery();
 			try {
 				for (int pIdx = 0; pIdx < pcount; pIdx++) {
-					pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, pIdx==(pcount-1)));
+					if(dbinf!=null)
+						pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, 
+								pIdx==(pcount-1),dbinf.identCaseSensitive)); 
+					else
+						pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, 
+								pIdx==(pcount-1)));
 				}
 			} finally {
 				if(!lazy) rs.close();
@@ -351,10 +356,12 @@ public class DataSourceImpl implements DataSource {
 		private String dbSysUser;
 		private String dbSysPswd;
 		private Properties dbParams = new Properties();
+		private Boolean identCaseSensitive;
 
 		DatabaseInfo(Element dbel) {
 			dbDriverName = dbel.getAttribute("driver");
 			dbUrl = dbel.getAttribute("url");
+			identCaseSensitive = new Boolean(dbel.getAttribute("ident-case-sensitive"));
 			dbSysUser = dbel.getAttribute("user");
 			if(dbSysUser.isEmpty()) dbSysUser = null;
 			dbSysPswd = dbel.getAttribute("password");

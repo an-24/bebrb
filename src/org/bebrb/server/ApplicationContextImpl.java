@@ -73,6 +73,8 @@ public class ApplicationContextImpl implements ApplicationContext {
 
 	private ConnectionPool pool;
 
+	private boolean identCaseSensitive;
+
 
 	private static ResourceBundle strings = null;
 	
@@ -146,6 +148,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 		Element dbel = XMLUtils.findChild(el, "database");
 		dbDriverName = dbel.getAttribute("driver");
 		dbUrl = dbel.getAttribute("url");
+		identCaseSensitive = new Boolean(dbel.getAttribute("ident-case-sensitive"));
 		dbSysUser = dbel.getAttribute("user");
 		if(dbSysUser.isEmpty()) dbSysUser = null;
 		dbSysPswd = dbel.getAttribute("password");
@@ -393,5 +396,9 @@ public class ApplicationContextImpl implements ApplicationContext {
 					dbPoolMin, dbPoolMax);
 		}
 		return pool;
+	}
+
+	public boolean isIdentCaseSensitive() {
+		return identCaseSensitive;
 	}
 }
