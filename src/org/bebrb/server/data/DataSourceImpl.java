@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -286,7 +285,7 @@ public class DataSourceImpl implements DataSource {
 			if (statement == null) {
 				parse(sqlText, params);
 				statement = con.prepareStatement(inSQL);
-				statementCount = con.prepareStatement("select count(*) from("+inSQL+")");
+				statementCount = con.prepareStatement("select count(*) from("+inSQL+") as A");
 			}
 			// params
 			int i = 1;
