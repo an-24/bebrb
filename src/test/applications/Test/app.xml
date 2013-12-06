@@ -9,7 +9,7 @@
 			<data>
 				<datamodule name="datasources1.xml"/>
 			</data>
-			<database driver="com.microsoft.sqlserver.jdbc.SQLServerDriver" url="jdbc:sqlserver://localhost\\SQLEXPRESS:1433;databaseName=test;" user="sa" password="rol"/>
+			<database driver="com.microsoft.sqlserver.jdbc.SQLServerDriver" url="jdbc:sqlserver://localhost\\SQLEXPRESS:1433;databaseName=test;" user="sa" password="rol" ident-case-sensitive="false"/>
 			<!--<database driver="org.firebirdsql.jdbc.FBDriver" url="jdbc:firebirdsql:localhost/3050:D:\WORK\bebrb\src\test\db\fb\test.fdb" user="sysdba" password="masterkey"> -->
 			<!-- 
 			<database driver="org.firebirdsql.jdbc.FBDriver" url="jdbc:firebirdsql:localhost/3050:/Users/andrej/Documents/workspace/bebrb/src/test/db/fb/test.fdb" user="sysdba" password="rolling">
