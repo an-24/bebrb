@@ -2,14 +2,18 @@ package org.bebrb.server.net;
 
 import java.io.OutputStream;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bebrb.data.DataPage;
 import org.bebrb.data.DataSource;
+import org.bebrb.reference.ReferenceBook;
+import org.bebrb.reference.ReferenceBookMetaData.ReferenceType;
+import org.bebrb.reference.View;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.data.DataPageImpl;
 import org.bebrb.server.data.DataSourceImpl;
@@ -19,20 +23,57 @@ import org.bebrb.server.utils.ReflectUtils;
 
 import com.google.gson.Gson;
 
-public class CommandOpenDatasource extends Command {
+public class CommandOpenReferenceView  extends Command {
 	private String sessionId;
-	private String id;
+	private String refId;
+	private String viewId;
 	private Map<String,Object> params;
+	private Date actualDate;
+	private Date viewDate;
+	private Integer folderId;
 
-	protected CommandOpenDatasource() {
-		super(Type.OpenDatasource);
+
+	protected CommandOpenReferenceView() {
+		super(Type.OpenReferenceView);
 	}
-
-	public CommandOpenDatasource(String sessionId, String id, Map<String, Object> params) {
+	
+	public CommandOpenReferenceView(String sessionId, String refId) {
 		this();
 		this.sessionId = sessionId;
-		this.id = id;
+		this.refId = refId;
+	}
+	
+	public CommandOpenReferenceView(String sessionId, String refId, String viewId) {
+		this(sessionId,refId);
+		this.viewId = viewId;
+	}
+	
+	public void setParams(Map<String, Object> params) {
 		this.params = params;
+	}
+
+	public Date getViewDate() {
+		return viewDate;
+	}
+
+	public void setViewDate(Date viewDate) {
+		this.viewDate = viewDate;
+	}
+
+	public Date getActualDate() {
+		return actualDate;
+	}
+
+	public void setActualDate(Date actualDate) {
+		this.actualDate = actualDate;
+	}
+
+	public Integer getFolderId() {
+		return folderId;
+	}
+
+	public void setFolderId(Integer folderId) {
+		this.folderId = folderId;
 	}
 
 	@Override
@@ -40,14 +81,27 @@ public class CommandOpenDatasource extends Command {
 			Exception {
 		Response response = new Response();
 		SessionContextImpl session = (SessionContextImpl) SessionContextImpl.loadSession(sessionId);
-		DataSource ds = session.getAppContext().getDataSourceManager().findDataSource(id);
-		if(ds==null)
-			throw new ExecuteException("DatasourceNotFound",id);
+		ReferenceBook ref = session.getAppContext().getDataSourceManager().findReference(refId);
+		if(ref==null)
+			throw new ExecuteException("ReferenceNotFound",refId);
+		View view = ref.getDefaultView();
+		if(viewId!=null) view = ref.getViews().get(viewId);
+		if(view==null)
+			throw new ExecuteException("ViewNotFound",viewId);
+		DataSource ds = view.getDatasource();
 		//id cursor
 		BigInteger cursorId = ((DataSourceImpl)ds).newCursorId();
 		// execute
 		List<DataPage> pages;
 		try(Connection con = ((DataSourceImpl)ds).getConnection(session)) {
+			if(ref.getMetaData().isHistoryAvailable()) {
+				if(params==null) params = new HashMap<String, Object>();
+				params.put("viewDate", viewDate==null?new Date():viewDate);
+			}
+			if(ref.getMetaData().getReferenceType() == ReferenceType.Hierarchy && folderId!=null) {
+				if(params==null) params = new HashMap<String, Object>();
+				params.put("folderId", folderId);
+			}
 			pages = ((DataSourceImpl)ds).innerOpen(con,params,cursorId,session);
 			if(pages!=null) {
 				response.pages = new ArrayList<>(pages.size());
@@ -80,6 +134,5 @@ public class CommandOpenDatasource extends Command {
 		@CopyInDepth
 		List<Page> pages;
 	}
-
 
 }

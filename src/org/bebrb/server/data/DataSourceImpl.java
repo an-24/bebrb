@@ -1,16 +1,16 @@
 package org.bebrb.server.data;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.xml.bind.DatatypeConverter;
@@ -24,6 +24,7 @@ import org.bebrb.data.RemoteFunction;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.reference.View;
 import org.bebrb.server.DataSources;
+import org.bebrb.server.DatabaseInfo;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.net.ExecuteException;
 import org.bebrb.server.utils.XMLUtils;
@@ -52,6 +53,25 @@ public class DataSourceImpl implements DataSource {
 	private List<String> inParams = new ArrayList<>();
 	private DatabaseInfo dbinf = null;
 
+	public DataSourceImpl(ReferenceBook ref, View view, Date actualDate) {
+		id = ref.getMetaData().getId()+"."+view.getName();
+		lazy = view.isLazy();
+		cc = ref.getMetaData().getCacheControl();
+		if (cc == DataSource.CacheControl.IsModified)
+			if (actualDate==null)
+				actualCacheDate = new Date();
+			else
+				actualCacheDate = actualDate;
+		sqlText = ((ViewImpl)view).getSQL();
+		attrs.addAll(ref.getMetaData().getAttributes());
+		keyAttribute = ref.getMetaData().getKey();
+		insRPC = ref.getInsertFunc();
+		updRPC = ref.getUpdateFunc();
+		delRPC = ref.getDeleteFunc();
+		dbinf = ((ReferenceBookImpl)ref).getDatabaseInfo();
+		
+	}
+			
 	public DataSourceImpl(Element el, DataSources dscontext) throws Exception {
 		id = el.getAttribute("id");
 		lazy = Boolean.parseBoolean(el.getAttribute("lazy"));
@@ -275,6 +295,49 @@ public class DataSourceImpl implements DataSource {
 		notSupportedOnServer();
 	}
 	
+	public Map<String,Object> innerOpen(Connection con, Object keyValue, SessionContextImpl session) 
+			throws Exception {
+
+		if(dbinf!=null) con = dbinf.connect();
+		
+		try{
+			// prepare
+			if (statement == null) {
+				Map<String, Object> params = new HashMap<>();
+				parse(sqlText, params);
+				if(!params.containsKey("id"))
+					throw new ExecuteException("ReqParamNotFound");
+				statement = con.prepareStatement(inSQL);
+			}
+			// params
+			int i = 1;
+			for (String pname : inParams) {
+				if(pname.equals("id")) {
+					statement.setObject(i++, keyValue);
+					break;
+				}	
+			}
+			// fetch data
+			Map<String, Object> rec = new HashMap<>();
+			ResultSet rs = statement.executeQuery();
+			try {
+				if(rs.next()) {
+					ResultSetMetaData meta = rs.getMetaData();
+					for (int j = 1, len = meta.getColumnCount(); j <= len; j++) {
+						rec.put(meta.getColumnLabel(j),rs.getObject(j));
+					}
+				}
+			} finally {
+				rs.close();
+			}
+			
+			return rec;
+			
+		} finally {
+			if(dbinf!=null) con.close();			
+		}
+	}
+	
 	public List<DataPage> innerOpen(Connection con, Map<String, Object> params, BigInteger cursorId, SessionContextImpl session)
 			throws Exception {
 		
@@ -309,7 +372,7 @@ public class DataSourceImpl implements DataSource {
 				for (int pIdx = 0; pIdx < pcount; pIdx++) {
 					if(dbinf!=null)
 						pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, 
-								pIdx==(pcount-1),dbinf.identCaseSensitive)); 
+								pIdx==(pcount-1),dbinf.isIdentCaseSensitive())); 
 					else
 						pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, 
 								pIdx==(pcount-1)));
@@ -348,42 +411,18 @@ public class DataSourceImpl implements DataSource {
 		}
 		inSQL = sb.toString();
 	}
-	
-	class DatabaseInfo {
-		private String dbDriverName;
-		private String dbUrl;
-		private String dbSysUser;
-		private String dbSysPswd;
-		private Properties dbParams = new Properties();
-		private Boolean identCaseSensitive;
 
-		DatabaseInfo(Element dbel) {
-			dbDriverName = dbel.getAttribute("driver");
-			dbUrl = dbel.getAttribute("url");
-			identCaseSensitive = new Boolean(dbel.getAttribute("ident-case-sensitive"));
-			dbSysUser = dbel.getAttribute("user");
-			if(dbSysUser.isEmpty()) dbSysUser = null;
-			dbSysPswd = dbel.getAttribute("password");
-			if(dbSysPswd.isEmpty()) dbSysPswd = null;
-			XMLUtils.enumChildren(XMLUtils.findChild(dbel,"params"),new NotifyElement() {
-
-				@Override
-				public boolean notify(Element e) {
-					if(e.getNodeName().equals("param")) {
-						dbParams.put(e.getAttribute("name"), e.getAttribute("value"));
-					}
-					return false;
-				}
-			});
-		}
-		
-		Connection connect() throws SQLException {
-			Properties props = new Properties(dbParams);
-			if(dbSysUser!=null) props.put("user", dbSysUser);
-			if(dbSysPswd!=null) props.put("password", dbSysPswd);
-			return DriverManager.getConnection(dbUrl,dbParams);
-		}
-		
+	public BigInteger newCursorId() {
+		if(isLazy()) {
+			byte[] code = new byte[16];
+			new SecureRandom().nextBytes(code);
+			return new BigInteger(1,code);
+		};
+		return null;
 	}
 
+	public Connection getConnection(SessionContextImpl session) throws Exception {
+		return dbinf!=null?dbinf.connect():session.getConnection();
+	}
+	
 }

@@ -11,6 +11,7 @@ import org.bebrb.reference.ReferenceBook;
 import org.bebrb.reference.ReferenceBookMetaData;
 import org.bebrb.reference.View;
 import org.bebrb.server.ReferenceBookMetaDataImpl;
+import org.bebrb.server.DatabaseInfo;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.w3c.dom.Element;
@@ -23,6 +24,7 @@ public class ReferenceBookImpl implements ReferenceBook {
 	private RemoteFunctionImpl insRPC = null;
 	private RemoteFunctionImpl updRPC = null;
 	private RemoteFunctionImpl delRPC = null;
+	private DatabaseInfo dbinf = null;
 	
 	public ReferenceBookImpl(Element el) throws SAXException, IOException, ParserConfigurationException {
 		meta = new ReferenceBookMetaDataImpl(el);
@@ -55,6 +57,10 @@ public class ReferenceBookImpl implements ReferenceBook {
 		efunc = XMLUtils.findChild(el, "delete");
 		if(efunc!=null) delRPC = new RemoteFunctionImpl(efunc);
 		
+		Element edb = XMLUtils.findChild(el,"database");
+		if(edb!=null) {
+			dbinf = new DatabaseInfo(edb);
+		}
 	}
 
 	@Override
@@ -85,6 +91,10 @@ public class ReferenceBookImpl implements ReferenceBook {
 	@Override
 	public RemoteFunction getDeleteFunc() {
 		return delRPC;
+	}
+
+	public DatabaseInfo getDatabaseInfo() {
+		return dbinf;
 	}
 
 }

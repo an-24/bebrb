@@ -14,6 +14,7 @@ public class ViewImpl implements View {
 	private String name;
 	private String title;
 	private ReferenceBook ref;
+	private boolean lazy;
 	private int root = MAIN_ROOT_ID;
 	private String sqlTxt;
 
@@ -35,8 +36,8 @@ public class ViewImpl implements View {
 	}
 
 	@Override
-	public DataSource getDataSet() throws Exception {
-		throw new Exception("Is not supported on server");
+	public DataSource getDatasource() throws Exception {
+		return new DataSourceImpl(ref, this, ref.getMetaData().getActualDate());
 	}
 
 	@Override
@@ -58,6 +59,11 @@ public class ViewImpl implements View {
 	
 	public String getSQL() {
 		return sqlTxt;
+	}
+
+	@Override
+	public boolean isLazy() {
+		return lazy;
 	}
 
 }

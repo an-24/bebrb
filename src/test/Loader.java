@@ -22,10 +22,12 @@ import org.bebrb.server.net.Command;
 import org.bebrb.server.net.Command.Type;
 import org.bebrb.server.net.CommandFactory;
 import org.bebrb.server.net.CommandGetAppContext;
+import org.bebrb.server.net.CommandGetRecord;
 import org.bebrb.server.net.CommandHello;
 import org.bebrb.server.net.CommandLogin;
 import org.bebrb.server.net.CommandLogout;
 import org.bebrb.server.net.CommandOpenDatasource;
+import org.bebrb.server.net.CommandOpenReferenceView;
 import org.bebrb.server.net.WriteStreamException;
 
 public class Loader {
@@ -137,6 +139,16 @@ public class Loader {
 
 			// отправляем команду OpenDataset
 			sr = send(new CommandOpenDatasource(response2.getSession().getId(),"q1", null));
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
+			Thread.sleep(1000);
+
+			// отправляем команду OpenReferenceView
+			sr = send(new CommandOpenReferenceView(response2.getSession().getId(),"r1"));
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
+			Thread.sleep(1000);
+
+			// отправляем команду GetRecord
+			sr = send(new CommandGetRecord(response2.getSession().getId(),"q1", 2));
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			Thread.sleep(1000);
 			

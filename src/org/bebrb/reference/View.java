@@ -3,19 +3,23 @@
  */
 package org.bebrb.reference;
 
+import java.util.Map;
+
+import org.bebrb.data.DataPage;
 import org.bebrb.data.DataSource;
 
 /**
- * Представление справочника
+ * Reference view
  */
 public interface View {
 	/**
-	 * Уникальное в рамках справочника представление
-	 * @return
+	 * Unique name view in reference
+	 * @return is not null
 	 */
 	public String getName();
 	/**
-	 * Заголовок представления
+	 * Title view
+	 * @return is not null
 	 */
 	public String getTitle();
 	/**
@@ -24,7 +28,7 @@ public interface View {
 	 * @return не может быть null
 	 * @throws Exception
 	 */
-	public DataSource getDataSet() throws Exception;
+	public DataSource getDatasource() throws Exception;
 	/**
 	 * Обновление данных в кеше справочника. Приводит к сетевому соединению и обмену
 	 * @throws Exception
@@ -38,4 +42,11 @@ public interface View {
 	 * никогда не null
 	 */
 	public Integer getRoot();
+	
+	/**
+	 * Тест на получение данных в момент обращения к ним
+	 * @return если false тогда данные получаются сразу при открытии, иначе
+	 * данные получаются постранично при вызове  {@link DataPage#getRecords()}
+	 */
+	public boolean isLazy();
 }

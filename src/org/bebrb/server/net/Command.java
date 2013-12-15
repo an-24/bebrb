@@ -17,7 +17,7 @@ import java.io.Writer;
  * <pre>
  * ["Hello",{}]
  * ["Login",{app:"test",user:"sys",pswd:"---"}]
- * ["Logout",{session:"ACD1234BD3459001D"}]
+ * ["Logout",{sessionId:"ACD1234BD3459001D"}]
  * </pre>
  */
 public abstract class Command {
@@ -29,13 +29,16 @@ public abstract class Command {
 	 * <li>Hello - welcome message. The answer to the query as a list of applications.  
 	 *
 	 */
-	public static enum Type {Hello,Login,Logout,GetAppContext,OpenDatasource}
+	public static enum Type {Hello,Login,Logout,GetAppContext,OpenDatasource,
+							OpenReferenceView, GetRecord}
 	private static Class<?>[] classes = {
 		CommandHello.class,
 		CommandLogin.class,
 		CommandLogout.class,
 		CommandGetAppContext.class,
-		CommandOpenDatasource.class
+		CommandOpenDatasource.class,
+		CommandOpenReferenceView.class,
+		CommandGetRecord.class
 	};
 	
 	public transient final Type type;

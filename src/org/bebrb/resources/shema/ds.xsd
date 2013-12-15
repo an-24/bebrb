@@ -133,6 +133,8 @@
 				<attribute name="default" type="QName"/>
 			</complexType>
    		</element>
+   		<element name="database" type="tns:databaseType" minOccurs="0"/>
+   		
    		<element name="insert" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    		<element name="update" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
  		<element name="delete" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
@@ -156,6 +158,7 @@
     		</sequence>
 		<attribute name="name" type="QName" use="required"/>
    	    <attribute name="title" type="string" use="required"></attribute>
+   		<attribute name="lazy" type="boolean" default="true"/>
     </complexType>
     
     <complexType name="rpcType" mixed="true">
