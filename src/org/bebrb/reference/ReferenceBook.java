@@ -43,5 +43,11 @@ public interface ReferenceBook {
 	 * @return может быть null
 	 */
 	public RemoteFunction getDeleteFunc();
+	
+	/**
+	 * Returns query used to retrieve a record in reference book
+	 * @return not is null
+	 */
+	public String getGetRecordSQL();
 
 }

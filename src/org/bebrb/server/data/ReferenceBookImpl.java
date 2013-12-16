@@ -1,6 +1,8 @@
 package org.bebrb.server.data;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ import org.bebrb.reference.ReferenceBookMetaData;
 import org.bebrb.reference.View;
 import org.bebrb.server.ReferenceBookMetaDataImpl;
 import org.bebrb.server.DatabaseInfo;
+import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.w3c.dom.Element;
@@ -25,6 +28,7 @@ public class ReferenceBookImpl implements ReferenceBook {
 	private RemoteFunctionImpl updRPC = null;
 	private RemoteFunctionImpl delRPC = null;
 	private DatabaseInfo dbinf = null;
+	private String getSql;
 	
 	public ReferenceBookImpl(Element el) throws SAXException, IOException, ParserConfigurationException {
 		meta = new ReferenceBookMetaDataImpl(el);
@@ -47,6 +51,9 @@ public class ReferenceBookImpl implements ReferenceBook {
 			defaultView = views.values().iterator().next();
 		
 		Element efunc;
+
+		efunc = XMLUtils.findChild(el, "get");
+		getSql = efunc.getTextContent();
 		
 		efunc = XMLUtils.findChild(el, "insert");
 		if(efunc!=null) insRPC = new RemoteFunctionImpl(efunc);
@@ -95,6 +102,15 @@ public class ReferenceBookImpl implements ReferenceBook {
 
 	public DatabaseInfo getDatabaseInfo() {
 		return dbinf;
+	}
+
+	@Override
+	public String getGetRecordSQL() {
+		return getSql;
+	}
+
+	public Connection getConnection(SessionContextImpl session) throws Exception {
+		return dbinf!=null?dbinf.connect():session.getConnection();
 	}
 
 }

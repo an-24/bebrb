@@ -49,6 +49,11 @@
 	    			</sql>	
 	  		</view>
 	  	</views>
+	  	<get>
+	  		select * 
+	  		from company
+	  		where company_id = :id
+	  	</get>
 	  	<insert>
 	  		<arguments>
 	  			<arg name="a" type="Integer"/>

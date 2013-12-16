@@ -148,7 +148,10 @@ public class Loader {
 			Thread.sleep(1000);
 
 			// отправляем команду GetRecord
-			sr = send(new CommandGetRecord(response2.getSession().getId(),"q1", 2));
+			CommandGetRecord cmd2 = new CommandGetRecord(response2.getSession().getId(),2);
+			//cmd2.setDatasourceId("q1");
+			cmd2.setRefId("r1");
+			sr = send(cmd2);
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			Thread.sleep(1000);
 			

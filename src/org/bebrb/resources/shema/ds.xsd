@@ -135,6 +135,7 @@
    		</element>
    		<element name="database" type="tns:databaseType" minOccurs="0"/>
    		
+   		<element name="get" type="tns:cdata" minOccurs="1" maxOccurs="1"/>
    		<element name="insert" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    		<element name="update" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
  		<element name="delete" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>

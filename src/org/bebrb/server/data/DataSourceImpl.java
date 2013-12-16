@@ -5,10 +5,8 @@ import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -295,49 +293,6 @@ public class DataSourceImpl implements DataSource {
 		notSupportedOnServer();
 	}
 	
-	public Map<String,Object> innerOpen(Connection con, Object keyValue, SessionContextImpl session) 
-			throws Exception {
-
-		if(dbinf!=null) con = dbinf.connect();
-		
-		try{
-			// prepare
-			if (statement == null) {
-				Map<String, Object> params = new HashMap<>();
-				parse(sqlText, params);
-				if(!params.containsKey("id"))
-					throw new ExecuteException("ReqParamNotFound");
-				statement = con.prepareStatement(inSQL);
-			}
-			// params
-			int i = 1;
-			for (String pname : inParams) {
-				if(pname.equals("id")) {
-					statement.setObject(i++, keyValue);
-					break;
-				}	
-			}
-			// fetch data
-			Map<String, Object> rec = new HashMap<>();
-			ResultSet rs = statement.executeQuery();
-			try {
-				if(rs.next()) {
-					ResultSetMetaData meta = rs.getMetaData();
-					for (int j = 1, len = meta.getColumnCount(); j <= len; j++) {
-						rec.put(meta.getColumnLabel(j),rs.getObject(j));
-					}
-				}
-			} finally {
-				rs.close();
-			}
-			
-			return rec;
-			
-		} finally {
-			if(dbinf!=null) con.close();			
-		}
-	}
-	
 	public List<DataPage> innerOpen(Connection con, Map<String, Object> params, BigInteger cursorId, SessionContextImpl session)
 			throws Exception {
 		
@@ -346,7 +301,7 @@ public class DataSourceImpl implements DataSource {
 		try{
 			// prepare
 			if (statement == null) {
-				parse(sqlText, params);
+				inSQL = parse(id,sqlText,params,inParams);
 				statement = con.prepareStatement(inSQL);
 				statementCount = con.prepareStatement("select count(*) from("+inSQL+") as A");
 			}
@@ -388,28 +343,22 @@ public class DataSourceImpl implements DataSource {
 		}
 	}
 
-	private void parse(String sql, Map<String, Object> params)
+	public static String parse(String dsId, String sql, Map<String, Object> params,List<String> inParams)
 			throws ExecuteException {
 		inParams.clear();
 		StringBuilder sb = new StringBuilder();
-		StringTokenizer parser = new StringTokenizer(sql);
+		StringTokenizer parser = new StringTokenizer(sql," \t\n\r\f=",true);
 		while (parser.hasMoreTokens()) {
 			String token = parser.nextToken();
-			switch (token) {
-			case ":":
-				String pname = parser.nextToken();
-				if (params.get(pname) == null)
-					throw new ExecuteException("SQLParamNotFound", id + "."
-							+ pname);
+			if(token.startsWith(":")) {
+				String pname = token.substring(1);
+				if(!params.containsKey(pname))
+					throw new ExecuteException("SQLParamNotFound",dsId+"."+pname);
 				inParams.add(pname);
 				sb.append("?");
-				break;
-			default:
-				sb.append(token);
-			}
-			sb.append(" ");
+			} else sb.append(token);
 		}
-		inSQL = sb.toString();
+		return sb.toString();
 	}
 
 	public BigInteger newCursorId() {
@@ -423,6 +372,10 @@ public class DataSourceImpl implements DataSource {
 
 	public Connection getConnection(SessionContextImpl session) throws Exception {
 		return dbinf!=null?dbinf.connect():session.getConnection();
+	}
+
+	public String getSqlText() {
+		return sqlText;
 	}
 	
 }
