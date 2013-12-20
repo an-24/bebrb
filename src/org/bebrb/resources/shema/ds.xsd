@@ -7,70 +7,52 @@
 		    <element name="datasources" minOccurs="0" maxOccurs="1">
 		    	<complexType>
     				<sequence>
-		   				<element name="datasource" type="tns:datasourceType" minOccurs="0" maxOccurs="unbounded"/>
+		   				<element name="datasource" type="tns:datasourceType" minOccurs="0" maxOccurs="unbounded">
+		   				</element>
     				</sequence>
 		    	</complexType>
+    			<unique name="uniqDS">
+					<selector xpath="tns:datasource"/>
+					<field    xpath="@id"/>		    	
+    			</unique>
+				<keyref name="refKeySQL" refer="tns:uniqSQLAttr">
+					<selector xpath="tns:datasource"/>
+					<field xpath="@key"/>
+				</keyref>
 		    </element>
 		    <element name="references" minOccurs="0" maxOccurs="1">
 		    	<complexType>
     				<sequence>
-		   				<element name="reference" type="tns:referenceType" minOccurs="0" maxOccurs="unbounded"/>
+		   				<element name="reference" type="tns:referenceType" minOccurs="0" maxOccurs="unbounded">
+							<keyref name="refKeyReference" refer="tns:uniqAttr">
+								<selector xpath="."/>
+								<field xpath="@key"/>
+							</keyref>
+							<keyref name="refParentKeyReference" refer="tns:uniqAttr">
+								<selector xpath="."/>
+								<field xpath="@parentkey"/>
+							</keyref>
+							<keyref name="refFolder" refer="tns:uniqAttr">
+								<selector xpath="tns:folder"/>
+								<field xpath="@attribute"/>
+							</keyref>
+		   				</element>
     				</sequence>
 		    	</complexType>
+    			<unique name="uniqRef">
+					<selector xpath="tns:reference"/>
+    				<field    xpath="@id"/>		    	
+				</unique>
 		    </element>
 		    
     	 </all>	
     	</complexType>
-    	
-    	<unique name="uniqDS">
-			<selector xpath="tns:datasources/tns:datasource"/>
-			<field    xpath="@id"/>		    	
-    	</unique>
-    	
-    	<unique name="uniqRef">
-			<selector xpath="tns:references/tns:reference"/>
-    		<field    xpath="@id"/>		    	
-		</unique>
 
-    	<unique name="uniqView">
-			<selector xpath="tns:references/tns:reference/tns:views/tns:view"/>
-			<field    xpath="@name"/>		    	
-    	</unique>
-
-    	<unique name="uniqAttr">
-			<selector xpath="tns:references/tns:reference/tns:attributes/tns:attribute"/>
-			<field    xpath="@name"/>		    	
-    	</unique>
-
-    	<unique name="uniqSQLAttr">
-			<selector xpath="tns:datasources/tns:datasource/tns:attributes/tns:attribute"/>
-			<field    xpath="@name"/>		    	
-    	</unique>
-		
 		<keyref name="refDS" refer="tns:uniqRef">
 			<selector xpath="tns:datasources/tns:datasource/tns:reference"/>
 			<field xpath="@id"/>
 		</keyref>
 		
-		<keyref name="refDefaultView" refer="tns:uniqView">
-			<selector xpath="tns:references/tns:reference/tns:views"/>
-			<field xpath="@default"/>
-		</keyref>
-
-		<keyref name="refKeyReference" refer="tns:uniqAttr">
-			<selector xpath="tns:references/tns:reference"/>
-			<field xpath="@key"/>
-		</keyref>
-
-		<keyref name="refParentKeyReference" refer="tns:uniqAttr">
-			<selector xpath="tns:references/tns:reference"/>
-			<field xpath="@parentkey"/>
-		</keyref>
-
-		<keyref name="refKeySQL" refer="tns:uniqSQLAttr">
-			<selector xpath="tns:datasources/tns:datasource"/>
-			<field xpath="@key"/>
-		</keyref>
     </element>
 
 		    	
@@ -88,6 +70,10 @@
 	   					<element name="attribute" type="tns:attributeType" maxOccurs="unbounded"/>
 	   				</sequence>
 				</complexType>
+    			<unique name="uniqSQLAttr">
+					<selector xpath="tns:attribute"/>
+					<field    xpath="@name"/>		    	
+    			</unique>
 	   	    </element>
    			<element name="insert" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
    			<element name="update" type="tns:rpcType" minOccurs="0" maxOccurs="1"/>
@@ -124,6 +110,10 @@
    					<element name="attribute" type="tns:attributeType" maxOccurs="unbounded"/>
    				</sequence>
 			</complexType>
+    		<unique name="uniqAttr">
+				<selector xpath="tns:attribute"/>
+				<field    xpath="@name"/>		    	
+    		</unique>
    	    </element>
    		<element name="views" maxOccurs="1">
 			<complexType>
@@ -131,6 +121,22 @@
    					<element name="view" type="tns:viewType" maxOccurs="unbounded"/>
    				</sequence>
 				<attribute name="default" type="QName"/>
+			</complexType>
+    		<unique name="uniqView">
+				<selector xpath="tns:view"/>
+				<field    xpath="@name"/>		    	
+    		</unique>
+			<keyref name="refDefaultView" refer="tns:uniqView">
+				<selector xpath="."/>
+				<field xpath="@default"/>
+			</keyref>
+   		</element>
+   		<element name="folder" minOccurs="0">
+			<complexType>
+ 	  			<attribute name="attribute" type="QName" use="required"/>
+ 	  			<attribute name="value" type="string" use="required"/>
+ 	  			<attribute name="order" type="string" default="asc"/>
+ 	  			<attribute name="сanсhoise" type="boolean" default="false"/>
 			</complexType>
    		</element>
    		<element name="database" type="tns:databaseType" minOccurs="0"/>
@@ -148,7 +154,6 @@
  	  <attribute name="cache-control" type="tns:cacheControlType" default="None"/>
  	  <!-- TODO: check needed required if type = Hierarchy -->
  	  <attribute name="parentkey" type="QName"/>
- 	  <attribute name="сanсhoisefolder" type="boolean"/>
  	  <!-- for cache-control = IsModified -->
 	  <attribute name="actualDate" type="date"/>
     </complexType>

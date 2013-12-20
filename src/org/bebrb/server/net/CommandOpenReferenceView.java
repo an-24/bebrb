@@ -17,6 +17,7 @@ import org.bebrb.reference.View;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.data.DataPageImpl;
 import org.bebrb.server.data.DataSourceImpl;
+import org.bebrb.server.data.DataSourceImpl.SortAttribute;
 import org.bebrb.server.utils.CopyInDepth;
 import org.bebrb.server.utils.NoCopy;
 import org.bebrb.server.utils.ReflectUtils;
@@ -31,6 +32,8 @@ public class CommandOpenReferenceView  extends Command {
 	private Date actualDate;
 	private Date viewDate;
 	private Integer folderId;
+	private Integer pageSize;
+	private List<SortAttribute> sorting;
 
 
 	protected CommandOpenReferenceView() {
@@ -94,14 +97,19 @@ public class CommandOpenReferenceView  extends Command {
 		// execute
 		List<DataPage> pages;
 		try(Connection con = ((DataSourceImpl)ds).getConnection(session)) {
+			
+			if(pageSize!=null) ((DataSourceImpl)ds).setMaxSizeDataPage(pageSize);
+
+			if(sorting!=null) ((DataSourceImpl)ds).setSortedAttributes(sorting);
+			
 			if(ref.getMetaData().isHistoryAvailable()) {
-				if(params==null) params = new HashMap<String, Object>();
-				params.put("viewDate", viewDate==null?new Date():viewDate);
+				getParams().put("viewDate", viewDate==null?new Date():viewDate);
 			}
-			if(ref.getMetaData().getReferenceType() == ReferenceType.Hierarchy && folderId!=null) {
-				if(params==null) params = new HashMap<String, Object>();
-				params.put("folderId", folderId);
+			if(ref.getMetaData().getReferenceType() == ReferenceType.Hierarchy) {
+				if(folderId==null) folderId = ReferenceBook.MAIN_ROOT_ID;
+				getParams().put("folderId", folderId);
 			}
+			
 			pages = ((DataSourceImpl)ds).innerOpen(con,params,cursorId,session);
 			if(pages!=null) {
 				response.pages = new ArrayList<>(pages.size());
@@ -119,6 +127,11 @@ public class CommandOpenReferenceView  extends Command {
 		};
 		Gson gson = CommandFactory.createGson();
 		writeToOutputStream(out, gson.toJson(response));
+	}
+
+	private Map<String, Object> getParams() {
+		if(params==null) params = new HashMap<String, Object>();
+		return params;
 	}
 
 	class Page {

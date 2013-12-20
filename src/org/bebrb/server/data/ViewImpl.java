@@ -9,13 +9,11 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class ViewImpl implements View {
-	public static final int MAIN_ROOT_ID = -1;
-	
 	private String name;
 	private String title;
 	private ReferenceBook ref;
 	private boolean lazy;
-	private int root = MAIN_ROOT_ID;
+	private int root = ReferenceBook.MAIN_ROOT_ID;
 	private String sqlTxt;
 
 	public ViewImpl(Element el, ReferenceBook ref) throws SAXException {

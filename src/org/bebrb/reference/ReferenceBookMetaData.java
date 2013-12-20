@@ -11,6 +11,8 @@ import org.bebrb.data.BaseDataSet;
  *
  */
 public interface ReferenceBookMetaData extends BaseDataSet {
+
+	public static final String HIERARCHY_CHILD_COUNT = "_cnt";
 	/**
 	 * Типы справочников 
 	 * <ul>
@@ -19,8 +21,8 @@ public interface ReferenceBookMetaData extends BaseDataSet {
 	 *  <li> {@link ReferenceType#Hierarchy} - иерархический справочник с историчностью. Поддерживаются мастер данные. Наличие представлений. 
 	 * </ul>
 	 */
-	public static enum ReferenceType {Simple, Linear, Hierarchy};
-	
+	public static enum ReferenceType {Simple, Linear, Hierarchy}
+
 	/**
 	 * Тест на историчность
 	 * @return  true, если по справочнику допускаются исторические данные 

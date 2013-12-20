@@ -2,19 +2,21 @@ package org.bebrb.server.data;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.bebrb.data.DataSource;
 import org.bebrb.data.RemoteFunction;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.reference.ReferenceBookMetaData;
 import org.bebrb.reference.View;
-import org.bebrb.server.ReferenceBookMetaDataImpl;
 import org.bebrb.server.DatabaseInfo;
+import org.bebrb.server.ReferenceBookMetaDataImpl;
 import org.bebrb.server.SessionContextImpl;
+import org.bebrb.server.data.DataSourceImpl.SortAttribute;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.w3c.dom.Element;
@@ -111,6 +113,24 @@ public class ReferenceBookImpl implements ReferenceBook {
 
 	public Connection getConnection(SessionContextImpl session) throws Exception {
 		return dbinf!=null?dbinf.connect():session.getConnection();
+	}
+	
+	public String makeHierarchySQL(ViewImpl view, String mainTable) throws Exception {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select A.*, (select count(*) from ").
+		   append(mainTable).append(" MT ").
+		   append("where MT.").append(meta.getKey().getName()).
+		   append("=").append("A.").append(meta.getKey().getName()).
+		   append(") ").append(ReferenceBookMetaData.HIERARCHY_CHILD_COUNT).
+		   append("from (").append(view.getSQL()).append(") as A ").
+		   append("order by A.").append(meta.getAttrFolder().getName()).
+		   append(" ").append(meta.getOrderFolder());
+		DataSourceImpl ds = (DataSourceImpl) view.getDatasource();
+		List<SortAttribute> sortedlist = ds.getSortedAttributes();
+		if(sortedlist!=null) {
+			sb.append(",").append(ds.orderBy("A", sortedlist));
+		}
+		return sb.toString();
 	}
 
 }

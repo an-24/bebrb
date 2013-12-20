@@ -5,14 +5,18 @@
 		xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<datasources>
 	  
-	  <datasource id="q2" key="document_id" cache-control="IsModified">
+	  <datasource id="q2" key="trade_id" lazy="true" cache-control="IsModified">
 		  <sql><![CDATA[
 		    	select * 
 		    	from trade
 		  ]]></sql>
 		  <attributes>
-		  	<attribute type="Integer" name="document_id" visible="false"/>
-		  	<attribute type="Date" name="document_date" visible="true"  caption="Дата документа"/>
+		  	<attribute type="Integer" name="trade_id" visible="false"/>
+		  	<attribute type="Integer" name="product_id" visible="false"/>
+		  	<attribute type="Integer" name="company_id" visible="false"/>
+		  	<attribute type="Money" name="trade_price" visible="true"  caption="Цена"/>
+		  	<attribute type="Double" name="trade_quantity" visible="true"  caption="Кол-во"/>
+		  	<attribute type="Date" name="trade_date" visible="true"  caption="Дата прихода"/>
 		  </attributes>
 	  </datasource>
 	  
@@ -65,5 +69,34 @@
 	  	</insert>
 	  	<delete ref="account.operdel"/>
 	  </reference>
+
+	  <reference id="r2" type="Hierarchy" title="Поставщики-Все" key="subject_id" parentkey="parent_id">
+	    <attributes>
+	    	<attribute type="Integer" name="subject_id" visible="false"/>
+	    	<attribute type="String" name="subject_name" size="80" caption="Поставщик"/>
+	    	<attribute type="Integer" name="parent_id" visible="false"/>
+	    	<attribute type="Integer" name="kind" visible="false"/>
+	    </attributes>
+	    <folder attribute="kind" value="1"/>
+	  	<views default="v1">
+	  		<view name="v1" title="По умолчанию">
+	  			<sql>
+	  			  <![CDATA[
+	    			select company_id subject_id,
+	    			       company_name subject_name,
+	    			       company_parent_id parent_id,
+	    			       1 kind
+	    			from company
+	    			]]>
+	    			</sql>	
+	  		</view>
+	  	</views>
+	  	<get>
+	  		select * 
+	  		from company
+	  		where company_id = :id
+	  	</get>
+	  </reference>
+
 	</references>
 </root>

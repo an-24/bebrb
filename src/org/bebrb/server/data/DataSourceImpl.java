@@ -5,6 +5,7 @@ import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +51,8 @@ public class DataSourceImpl implements DataSource {
 	private String inSQL;
 	private List<String> inParams = new ArrayList<>();
 	private DatabaseInfo dbinf = null;
+	
+	private List<SortAttribute> sortedAttributes;
 
 	public DataSourceImpl(ReferenceBook ref, View view, Date actualDate) {
 		id = ref.getMetaData().getId()+"."+view.getName();
@@ -217,6 +220,10 @@ public class DataSourceImpl implements DataSource {
 		return sizeDataPage ;
 	}
 
+	public void setMaxSizeDataPage(int sizeDataPage) {
+		this.sizeDataPage = sizeDataPage;
+	}
+
 	@Override
 	public Date getActualDate() {
 		return (cc != CacheControl.IsModified) ? null : actualCacheDate;
@@ -302,7 +309,8 @@ public class DataSourceImpl implements DataSource {
 			// prepare
 			if (statement == null) {
 				inSQL = parse(id,sqlText,params,inParams);
-				statement = con.prepareStatement(inSQL);
+				if(sortedAttributes!=null) statement = con.prepareStatement("select * from("+inSQL+") as A order by "+orderBy("A",sortedAttributes));
+									  else statement = con.prepareStatement(inSQL);
 				statementCount = con.prepareStatement("select count(*) from("+inSQL+") as A");
 			}
 			// params
@@ -316,7 +324,7 @@ public class DataSourceImpl implements DataSource {
 			try(ResultSet rs = statementCount.executeQuery()) {
 				rs.next();
 				int crecords = rs.getInt(1);
-				pcount = crecords/sizeDataPage+crecords%sizeDataPage!=0?1:0;
+				pcount = crecords/sizeDataPage+(crecords%sizeDataPage!=0?1:0);
 			}
 			if(pcount==0) return null;
 			
@@ -340,6 +348,16 @@ public class DataSourceImpl implements DataSource {
 			
 		} finally {
 			if(dbinf!=null) con.close();			
+		}
+	}
+	
+	public void reset(){
+		try {
+			if(statement!=null) statement.close();
+			if(statementCount!=null) statementCount.close();
+			statement = null;
+			statementCount = null;
+		} catch (SQLException e) {
 		}
 	}
 
@@ -377,5 +395,45 @@ public class DataSourceImpl implements DataSource {
 	public String getSqlText() {
 		return sqlText;
 	}
+
+	public List<SortAttribute> getSortedAttributes() {
+		return sortedAttributes;
+	}
+
+	public void setSortedAttributes(List<SortAttribute> sortedAttributes) {
+		this.sortedAttributes = sortedAttributes;
+		reset();
+	}
+
+	public static String orderBy(String alias,
+			List<SortAttribute> sortedAttributes) {
+		StringBuffer order = new StringBuffer();
+		for (int i = 0; i < sortedAttributes.size(); i++) {
+			SortAttribute attr = sortedAttributes.get(i);
+			order.append(alias+".");
+			order.append(attr.name);
+			if(attr.desc)
+				order.append(" desc");
+			if(i<sortedAttributes.size()-1) order.append(",");
+		}
+		return order.toString();
+	}
+	
+	static public class SortAttribute {
+		public final String name;
+		public final boolean desc;
+		
+		public SortAttribute(String name, boolean desc) {
+			this.name = name;
+			this.desc = desc;
+		}
+
+		public SortAttribute(String name) {
+			this.name = name;
+			this.desc = false;
+		}
+
+	}
+
 	
 }

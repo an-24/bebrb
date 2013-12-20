@@ -26,6 +26,9 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 	private Attribute parentKey = null;
 	private boolean сanChoiseFolder = false;
 	private Date actualCacheDate;
+	private Attribute attrFolder;
+	private String valueFolder;
+	private String orderFolder;
 
 	public ReferenceBookMetaDataImpl(Element el) throws SAXException {
 		id = el.getAttribute("id");
@@ -55,12 +58,18 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 		if(keyAttribute==null)
 			throw new SAXException("For key attribute not found");
 		((AttributeImpl)keyAttribute).setKey(true);
-		// parentkey & сanсhoisefolder
+		// Hierarchy
 		if(type == ReferenceType.Hierarchy) {
 			parentKey = findAttribute(el.getAttribute("parentkey"));
 			if(parentKey==null)
-				throw new SAXException("For parent key attribute not found");
-			сanChoiseFolder = Boolean.parseBoolean(el.getAttribute("сanсhoisefolder"));
+				throw new SAXException("Parent key attribute not found");
+			Element elfld = XMLUtils.findChild(el, "folder");
+			if(elfld==null)
+				throw new SAXException("\"folder\" element not found");
+			attrFolder = findAttribute(elfld.getAttribute("attribute"));
+			valueFolder = elfld.getAttribute("value");
+			сanChoiseFolder = Boolean.parseBoolean(elfld.getAttribute("сanсhoise"));
+			orderFolder = elfld.getAttribute("order");
 		}
 	}
 
@@ -121,6 +130,18 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 	@Override
 	public CacheControl getCacheControl() {
 		return cc;
+	}
+
+	public Attribute getAttrFolder() {
+		return attrFolder;
+	}
+
+	public String getValueFolder() {
+		return valueFolder;
+	}
+
+	public String getOrderFolder() {
+		return orderFolder;
 	}
 
 }

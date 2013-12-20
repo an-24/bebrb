@@ -18,11 +18,13 @@ import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.bebrb.server.data.DataSourceImpl;
 import org.bebrb.server.net.Command;
 import org.bebrb.server.net.Command.Type;
 import org.bebrb.server.net.CommandFactory;
 import org.bebrb.server.net.CommandGetAppContext;
 import org.bebrb.server.net.CommandGetRecord;
+import org.bebrb.server.net.CommandGetRecords;
 import org.bebrb.server.net.CommandHello;
 import org.bebrb.server.net.CommandLogin;
 import org.bebrb.server.net.CommandLogout;
@@ -138,7 +140,16 @@ public class Loader {
 			Thread.sleep(1000);
 
 			// отправляем команду OpenDataset
-			sr = send(new CommandOpenDatasource(response2.getSession().getId(),"q1", null));
+			CommandOpenDatasource cmd3 = new CommandOpenDatasource(response2.getSession().getId(),"q2", null);
+			cmd3.setPageSize(10);
+			cmd3.setSorting(new DataSourceImpl.SortAttribute("trade_date",true));
+			sr = send(cmd3);
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
+			CommandOpenDatasource.Response response4 = CommandFactory.createGson().fromJson(sr, CommandOpenDatasource.Response.class);
+			Thread.sleep(1000);
+			
+			//  отправляем команду GetRecords
+			sr = send(new CommandGetRecords(response2.getSession().getId(),response4.getCursorId(),0,1));
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			Thread.sleep(1000);
 

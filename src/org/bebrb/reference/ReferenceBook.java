@@ -12,6 +12,7 @@ import org.bebrb.data.RemoteFunction;
  *
  */
 public interface ReferenceBook {
+	public static final int MAIN_ROOT_ID = -1;
 	/**
 	 * Тип, структура и определения справочника
 	 * @return не может быть null
