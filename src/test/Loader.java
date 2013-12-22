@@ -15,13 +15,16 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.bebrb.server.data.DataSourceImpl;
 import org.bebrb.server.net.Command;
 import org.bebrb.server.net.Command.Type;
+import org.bebrb.server.net.CommandCallInsert;
 import org.bebrb.server.net.CommandFactory;
+import org.bebrb.server.net.CommandFindRecord;
 import org.bebrb.server.net.CommandGetAppContext;
 import org.bebrb.server.net.CommandGetRecord;
 import org.bebrb.server.net.CommandGetRecords;
@@ -154,7 +157,7 @@ public class Loader {
 			Thread.sleep(1000);
 
 			// отправляем команду OpenReferenceView
-			sr = send(new CommandOpenReferenceView(response2.getSession().getId(),"r1"));
+			sr = send(new CommandOpenReferenceView(response2.getSession().getId(),"r2"));
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			Thread.sleep(1000);
 
@@ -165,6 +168,23 @@ public class Loader {
 			sr = send(cmd2);
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			Thread.sleep(1000);
+			
+			// отправляем команду FindRecord
+			sr = send(new CommandFindRecord(response2.getSession().getId(),response4.getCursorId(),0,"3"));
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
+			Thread.sleep(1000);
+			
+			//CommandCallInsert
+			CommandCallInsert cmd7 = new CommandCallInsert(response2.getSession().getId(),new ArrayList<>());
+			cmd7.setReferenceBookId("r1");
+			cmd7.getArgs().add(1);
+			cmd7.getArgs().add(2);
+			cmd7.getArgs().add(3.5);
+			sr = send(cmd7);
+			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
+			Thread.sleep(1000);
+			
+			
 			
 			// отправляем команду Logout
 			send(new CommandLogout(response2.getSession().getId()));

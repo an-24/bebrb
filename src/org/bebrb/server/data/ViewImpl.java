@@ -11,16 +11,16 @@ import org.xml.sax.SAXException;
 public class ViewImpl implements View {
 	private String name;
 	private String title;
-	private ReferenceBook ref;
+	private ReferenceBook referenceBook;
 	private boolean lazy;
 	private int root = ReferenceBook.MAIN_ROOT_ID;
 	private String sqlTxt;
 
 	public ViewImpl(Element el, ReferenceBook ref) throws SAXException {
-		this.ref =ref;
+		this.referenceBook =ref;
 		name = el.getAttribute("name");
 		title = el.getAttribute("title");
-		sqlTxt = XMLUtils.getText(XMLUtils.findChild(el, "sql"));
+		sqlTxt = XMLUtils.getTextContent(XMLUtils.findChild(el, "sql"));
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class ViewImpl implements View {
 
 	@Override
 	public DataSource getDatasource() throws Exception {
-		return new DataSourceImpl(ref, this, ref.getMetaData().getActualDate());
+		return new DataSourceImpl(referenceBook, this, referenceBook.getMetaData().getActualDate());
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class ViewImpl implements View {
 
 	@Override
 	public Integer getRoot() {
-		if(ref.getMetaData().getReferenceType()!=ReferenceType.Hierarchy) return null;
+		if(referenceBook.getMetaData().getReferenceType()!=ReferenceType.Hierarchy) return null;
 		return root;
 	}
 	
@@ -64,4 +64,7 @@ public class ViewImpl implements View {
 		return lazy;
 	}
 
+	public ReferenceBook getReferenceBook() {
+		return referenceBook;
+	}
 }

@@ -61,20 +61,27 @@
 	  	<insert>
 	  		<arguments>
 	  			<arg name="a" type="Integer"/>
-	  			<arg name="b" type="Date"/>
-	  			<arg name="c" type="String"/>
+	  			<arg name="b" type="Double"/>
+	  			<arg name="c" type="Double"/>
 	  		</arguments>
-	  		function(a,b,c) {
-	  		}
+	  		{
+				var st=connection.prepareStatement("select * from product");
+				var rs = st.executeQuery();
+				var s = ""; 
+				while(rs.next()) {
+					s+=","+rs.getString("product_name");
+				}	  	
+	  			return s;
+	  		}	
 	  	</insert>
 	  	<delete ref="account.operdel"/>
 	  </reference>
 
-	  <reference id="r2" type="Hierarchy" title="Поставщики-Все" key="subject_id" parentkey="parent_id">
+	  <reference id="r2" type="Hierarchy" title="Поставщики-Все" key="company_id" parentkey="company_parent_id">
 	    <attributes>
-	    	<attribute type="Integer" name="subject_id" visible="false"/>
-	    	<attribute type="String" name="subject_name" size="80" caption="Поставщик"/>
-	    	<attribute type="Integer" name="parent_id" visible="false"/>
+	    	<attribute type="Integer" name="company_id" visible="false"/>
+	    	<attribute type="String" name="company_name" size="80" caption="Поставщик"/>
+	    	<attribute type="Integer" name="company_parent_id" visible="false"/>
 	    	<attribute type="Integer" name="kind" visible="false"/>
 	    </attributes>
 	    <folder attribute="kind" value="1"/>
@@ -82,9 +89,9 @@
 	  		<view name="v1" title="По умолчанию">
 	  			<sql>
 	  			  <![CDATA[
-	    			select company_id subject_id,
-	    			       company_name subject_name,
-	    			       company_parent_id parent_id,
+	    			select company_id,
+	    			       company_name,
+	    			       company_parent_id,
 	    			       1 kind
 	    			from company
 	    			]]>

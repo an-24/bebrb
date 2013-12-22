@@ -63,7 +63,7 @@ public class CommandOpenDatasource extends Command {
 			}
 		};
 		//id cursor & put in cache
-		if(pages!=null && ds.isLazy()) {
+		if(ds.isLazy()) {
 			session.getDatasetCache().put(cursorId, pages);
 			response.cursorId = cursorId.toString();
 		};

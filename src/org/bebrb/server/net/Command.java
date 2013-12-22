@@ -30,7 +30,8 @@ public abstract class Command {
 	 *
 	 */
 	public static enum Type {Hello,Login,Logout,GetAppContext,OpenDatasource,
-							OpenReferenceView, GetRecord, GetRecords}
+							OpenReferenceView, GetRecord, GetRecords, FindRecord,
+							Insert,Update,Delete}
 	private static Class<?>[] classes = {
 		CommandHello.class,
 		CommandLogin.class,
@@ -39,7 +40,11 @@ public abstract class Command {
 		CommandOpenDatasource.class,
 		CommandOpenReferenceView.class,
 		CommandGetRecord.class,
-		CommandGetRecords.class
+		CommandGetRecords.class,
+		CommandFindRecord.class,
+		CommandCallInsert.class,
+		CommandCallUpdate.class,
+		CommandCallDelete.class
 	};
 	
 	public transient final Type type;

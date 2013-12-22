@@ -12,7 +12,7 @@ import org.bebrb.data.BaseDataSet;
  */
 public interface ReferenceBookMetaData extends BaseDataSet {
 
-	public static final String HIERARCHY_CHILD_COUNT = "_cnt";
+	public static final String HIERARCHY_CHILD_COUNT = "cnt_children";
 	/**
 	 * Типы справочников 
 	 * <ul>

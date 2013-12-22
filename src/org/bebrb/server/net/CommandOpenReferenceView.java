@@ -98,8 +98,9 @@ public class CommandOpenReferenceView  extends Command {
 		List<DataPage> pages;
 		try(Connection con = ((DataSourceImpl)ds).getConnection(session)) {
 			
+			((DataSourceImpl)ds).setReferenceBookView(view);
+					
 			if(pageSize!=null) ((DataSourceImpl)ds).setMaxSizeDataPage(pageSize);
-
 			if(sorting!=null) ((DataSourceImpl)ds).setSortedAttributes(sorting);
 			
 			if(ref.getMetaData().isHistoryAvailable()) {

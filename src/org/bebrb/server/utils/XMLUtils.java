@@ -1,10 +1,8 @@
 package org.bebrb.server.utils;
 
-import org.w3c.dom.CDATASection;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 public class XMLUtils {
 	
@@ -53,11 +51,34 @@ public class XMLUtils {
 		public boolean notify(Element e);
 	}
 	
-	public static String getText(Element e) {
-		Node n = e.getFirstChild();
-		if(n instanceof Text || n instanceof CDATASection) return (String)((Text) n).getWholeText();
-		return null;
+	public static String getTextContent(Node node) {
+        switch (node.getNodeType()) {
+            case Node.ELEMENT_NODE:
+            case Node.ATTRIBUTE_NODE:
+            case Node.ENTITY_NODE:
+            case Node.ENTITY_REFERENCE_NODE:
+            case Node.DOCUMENT_FRAGMENT_NODE: {
+                StringBuffer sb = new StringBuffer();
+                NodeList list = node.getChildNodes();
+                for (int i = 0; i < list.getLength(); i++) {
+                    if (!isCommentOrProcessingInstruction(list.item(i)))
+                        sb.append(getTextContent(list.item(i)));
+                }
+                return sb.toString();
+            }
+            case Node.TEXT_NODE:
+            case Node.CDATA_SECTION_NODE:
+            case Node.COMMENT_NODE:
+            case Node.PROCESSING_INSTRUCTION_NODE: {
+                return node.getNodeValue();
+            }
+            default:
+                return null;
+        }
 	}
-
+    private static boolean isCommentOrProcessingInstruction(Node node) {
+        return node.getNodeType() == Node.COMMENT_NODE
+                || node.getNodeType() == Node.PROCESSING_INSTRUCTION_NODE;
+    }
 
 }

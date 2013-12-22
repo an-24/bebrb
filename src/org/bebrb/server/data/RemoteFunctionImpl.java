@@ -1,19 +1,32 @@
 package org.bebrb.server.data;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.script.Bindings;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.bebrb.server.ApplicationContextImpl;
 import org.bebrb.server.ModuleContext;
 import org.bebrb.data.Argument;
 import org.bebrb.data.RemoteFunction;
+import org.bebrb.server.net.ExecuteException;
+import org.bebrb.server.utils.DBUtils;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.w3c.dom.Element;
@@ -22,7 +35,7 @@ import org.xml.sax.SAXException;
 public class RemoteFunctionImpl implements RemoteFunction {
 
 	private String name;
-	protected Map<String, Argument> arguments =  new HashMap<String, Argument>();
+	protected List<Argument> arguments =  new ArrayList<>();
 	private String body;
 
 	public RemoteFunctionImpl(Element el) throws SAXException, IOException, ParserConfigurationException {
@@ -30,22 +43,21 @@ public class RemoteFunctionImpl implements RemoteFunction {
 			throw new SAXException("Remote function "+el.getNodeName()+" is not empty body. Required or not an empty attribute \"ref\" or non-empty body functions");
 		if(el.hasAttribute("ref")) {
 			RemoteFunction reffunc = resolveRefFunc(el.getAttribute("ref"),el);
-			name = reffunc.getName();
 			List<Argument> rargs = reffunc.getArguments();
-			for (Argument arg : rargs) {
-				arguments.put(arg.getName(), arg);
-			}
+			arguments.addAll(rargs);
+			name = reffunc.getName();
+			body = reffunc.getText();
 		} else {
 			XMLUtils.enumChildren(XMLUtils.findChild(el, "arguments"), new NotifyElement() {
 				@Override
 				public boolean notify(Element e) {
 					Argument arg = new ArgumentImpl(e,RemoteFunctionImpl.this);
-					arguments.put(arg.getName(), arg);
+					arguments.add(arg);
 					return false;
 				}
 			});
 			name = el.getAttribute("name");
-			body = XMLUtils.getText(el);
+			body = XMLUtils.getTextContent(el);
 		}
 	}
 
@@ -72,14 +84,51 @@ public class RemoteFunctionImpl implements RemoteFunction {
 
 	@Override
 	public List<Argument> getArguments() {
-		ArrayList<Argument> list = new ArrayList<Argument>();
-		list.addAll(arguments.values());
-		return list;
+		return arguments;
 	}
 
 	@Override
 	public String getText() {
 		return body;
+	}
+
+	public Object exec(List<Object> args, Connection con) throws Exception {
+		if(args==null) args = new ArrayList<>();
+		// cast arguments
+		List<Object> cargs = new ArrayList<>(args.size());
+		if(!args.isEmpty()) {
+			for (int i = 0, len = args.size(); i < len; i++) {
+				cargs.add(DBUtils.castFromObject(args.get(i), arguments.get(i).getType()));
+			}
+		}
+		// call
+		ScriptEngineManager manager = new ScriptEngineManager();
+		ScriptEngine jsEngine = manager.getEngineByName("JavaScript");
+		StringBuffer sfunc = new StringBuffer("function rpc_func(");
+		Object[] values = new Object[cargs.size()];
+		for (int i = 0, len = cargs.size(); i < len; i++) {
+			sfunc.append(arguments.get(i).getName());
+			if(i<len-1) sfunc.append(',');
+			values[i] = cargs.get(i);
+		}
+		sfunc.append(")");
+		sfunc.append(body);
+		Bindings bindings = new SimpleBindings();
+		bindings.put("connection", con);
+		jsEngine.setBindings(bindings,ScriptContext.GLOBAL_SCOPE);
+		
+		con.setAutoCommit(false);
+		try {
+			jsEngine.eval(sfunc.toString());
+	 		Invocable invocable = (Invocable) jsEngine;
+	 		Object result = invocable.invokeFunction("rpc_func",values);
+	 		con.commit();
+			return result; 
+		} catch (ScriptException e) {
+			con.rollback();
+			throw e;
+		}
+		
 	}
 
 }

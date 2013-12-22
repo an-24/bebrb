@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.bebrb.data.DataSource;
 import org.bebrb.data.RemoteFunction;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.reference.ReferenceBookMetaData;
@@ -115,13 +114,13 @@ public class ReferenceBookImpl implements ReferenceBook {
 		return dbinf!=null?dbinf.connect():session.getConnection();
 	}
 	
-	public String makeHierarchySQL(ViewImpl view, String mainTable) throws Exception {
+	public String makeHierarchySQL(ViewImpl view, String masterTable) throws Exception {
 		StringBuffer sb = new StringBuffer();
 		sb.append("select A.*, (select count(*) from ").
-		   append(mainTable).append(" MT ").
-		   append("where MT.").append(meta.getKey().getName()).
+		   append(masterTable).append(" MT ").
+		   append("where MT.").append(meta.getParentKey().getName()).
 		   append("=").append("A.").append(meta.getKey().getName()).
-		   append(") ").append(ReferenceBookMetaData.HIERARCHY_CHILD_COUNT).
+		   append(") ").append(ReferenceBookMetaData.HIERARCHY_CHILD_COUNT).append(" ").
 		   append("from (").append(view.getSQL()).append(") as A ").
 		   append("order by A.").append(meta.getAttrFolder().getName()).
 		   append(" ").append(meta.getOrderFolder());

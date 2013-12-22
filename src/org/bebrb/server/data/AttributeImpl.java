@@ -21,7 +21,7 @@ public class AttributeImpl implements Attribute {
 	private Attribute fkey;
 	private String[] fkResolveNeeded = null;
 	
-	public AttributeImpl(Element el, BaseDataSet ds) throws SAXException {
+	public AttributeImpl(BaseDataSet ds, Element el) throws SAXException {
 		this.ds = ds;
 		name = el.getAttribute("name");
 		caption = el.getAttribute("caption");
@@ -38,6 +38,17 @@ public class AttributeImpl implements Attribute {
 		if(el.hasAttribute("fkey")) {
 			fkResolveNeeded = el.getAttribute("fkey").split("\\.");
 		}
+	}
+
+	public AttributeImpl(BaseDataSet ds, String name, String caption,
+			Type type, boolean visible, boolean mandatory, int size) {
+		this.ds = ds;
+		this.name = name;
+		this.caption = caption;
+		this.type = type;
+		this.visible = visible;
+		this.mandatory = mandatory;
+		this.size = size;
 	}
 	
 	public void resolveForeignKey(Map<String,BaseDataSet> datasets) throws Exception {

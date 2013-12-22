@@ -136,4 +136,8 @@ public class DataPageImpl implements DataPage {
 		if (!alive && !noFetching) fetch();
 		return records;
 	}
+
+	public DataSourceImpl getDataSource() {
+		return ds;
+	}
 }

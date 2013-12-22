@@ -5,6 +5,7 @@ import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,10 +23,13 @@ import org.bebrb.data.Record;
 import org.bebrb.data.RemoteFunction;
 import org.bebrb.reference.ReferenceBook;
 import org.bebrb.reference.View;
+import org.bebrb.reference.ReferenceBookMetaData.ReferenceType;
 import org.bebrb.server.DataSources;
 import org.bebrb.server.DatabaseInfo;
+import org.bebrb.server.ReferenceBookMetaDataImpl;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.net.ExecuteException;
+import org.bebrb.server.utils.DBUtils;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.w3c.dom.Element;
@@ -53,6 +57,7 @@ public class DataSourceImpl implements DataSource {
 	private DatabaseInfo dbinf = null;
 	
 	private List<SortAttribute> sortedAttributes;
+	private ViewImpl view;
 
 	public DataSourceImpl(ReferenceBook ref, View view, Date actualDate) {
 		id = ref.getMetaData().getId()+"."+view.getName();
@@ -107,15 +112,14 @@ public class DataSourceImpl implements DataSource {
 			delRPC = rbook.getDeleteFunc();
 			sqlText = ((ViewImpl)rbview).getSQL();
 		} else {
-			sqlText = XMLUtils.getText(XMLUtils.findChild(el, "sql"));
+			sqlText = XMLUtils.getTextContent(XMLUtils.findChild(el, "sql"));
 			// attributes
 			XMLUtils.enumChildren(XMLUtils.findChild(el, "attributes"),
 					new NotifyElement() {
 						@Override
 						public boolean notify(Element e) {
 							try {
-								attrs.add(new AttributeImpl(e,
-										DataSourceImpl.this));
+								attrs.add(new AttributeImpl(DataSourceImpl.this,e));
 							} catch (SAXException e1) {
 								RuntimeException re = new RuntimeException(e1
 										.getMessage());
@@ -306,12 +310,30 @@ public class DataSourceImpl implements DataSource {
 		if(dbinf!=null) con = dbinf.connect();
 		
 		try{
+			String masterTable=null;
 			// prepare
 			if (statement == null) {
 				inSQL = parse(id,sqlText,params,inParams);
-				if(sortedAttributes!=null) statement = con.prepareStatement("select * from("+inSQL+") as A order by "+orderBy("A",sortedAttributes));
-									  else statement = con.prepareStatement(inSQL);
 				statementCount = con.prepareStatement("select count(*) from("+inSQL+") as A");
+				// for hierarchy reference book. Request main table if reference book
+				boolean hierarchyRBook = view!=null && view.getReferenceBook().getMetaData().getReferenceType()==ReferenceType.Hierarchy;
+				if(hierarchyRBook) {
+					masterTable = ((ReferenceBookMetaDataImpl)view.getReferenceBook().getMetaData()).getMasterTable();
+					// try request db
+					if(masterTable==null) {
+						String keyName = view.getReferenceBook().getMetaData().getKey().getName();
+						try(PreparedStatement statementTmp = con.prepareStatement("select * from("+inSQL+") as A")){
+							ResultSetMetaData rsmeta = statementTmp.getMetaData();
+							masterTable = rsmeta.getTableName(DBUtils.indexOfFieldByName(rsmeta, keyName));
+						}; 
+					}
+				}
+				if(hierarchyRBook) {
+					statement = con.prepareStatement(((ReferenceBookImpl)view.getReferenceBook()).makeHierarchySQL(view, masterTable));
+				} else
+					if(sortedAttributes!=null) statement = con.prepareStatement("select * from("+inSQL+") as A order by "+orderBy("A",sortedAttributes));
+										  else statement = con.prepareStatement(inSQL);
+				
 			}
 			// params
 			int i = 1;
@@ -433,6 +455,22 @@ public class DataSourceImpl implements DataSource {
 			this.desc = false;
 		}
 
+	}
+
+	public void setReferenceBookView(View view) {
+		this.view =  (ViewImpl) view;
+	}
+
+	public RemoteFunction getInsertFunc() {
+		return insRPC;
+	}
+
+	public RemoteFunction getUpdateFunc() {
+		return updRPC;
+	}
+
+	public RemoteFunction getDeleteFunc() {
+		return delRPC;
 	}
 
 	

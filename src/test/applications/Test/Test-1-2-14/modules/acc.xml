@@ -7,7 +7,7 @@
   		<arguments>
   			<arg name="id" type="Integer"/>
   		</arguments>
-  		function(id) {
+  		{
   		}
 	</function>
 </root>

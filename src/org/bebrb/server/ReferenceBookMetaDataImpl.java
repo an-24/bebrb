@@ -7,6 +7,7 @@ import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 
 import org.bebrb.data.Attribute;
+import org.bebrb.data.Attribute.Type;
 import org.bebrb.data.DataSource;
 import org.bebrb.reference.ReferenceBookMetaData;
 import org.bebrb.server.data.AttributeImpl;
@@ -29,6 +30,7 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 	private Attribute attrFolder;
 	private String valueFolder;
 	private String orderFolder;
+	private String masterTable;
 
 	public ReferenceBookMetaDataImpl(Element el) throws SAXException {
 		id = el.getAttribute("id");
@@ -44,7 +46,7 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 			@Override
 			public boolean notify(Element e) {
 				try {
-					attrs.add(new AttributeImpl(e,ReferenceBookMetaDataImpl.this));
+					attrs.add(new AttributeImpl(ReferenceBookMetaDataImpl.this,e));
 				} catch (SAXException e1) {
 					RuntimeException re = new RuntimeException(e1.getMessage());
 					re.initCause(e1);
@@ -53,11 +55,19 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 				return false;
 			}
 		});
+		if(type == ReferenceType.Hierarchy) {
+			attrs.add(new AttributeImpl(ReferenceBookMetaDataImpl.this,
+					HIERARCHY_CHILD_COUNT,
+					null,Type.Integer,false,false,0));
+		}
 		// set key
 		keyAttribute = findAttribute(el.getAttribute("key"));
 		if(keyAttribute==null)
 			throw new SAXException("For key attribute not found");
 		((AttributeImpl)keyAttribute).setKey(true);
+		// master table; optional
+		masterTable = el.getAttribute("mastertable");
+		if(masterTable.isEmpty()) masterTable = null;
 		// Hierarchy
 		if(type == ReferenceType.Hierarchy) {
 			parentKey = findAttribute(el.getAttribute("parentkey"));
@@ -142,6 +152,10 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 
 	public String getOrderFolder() {
 		return orderFolder;
+	}
+	
+	public String getMasterTable() {
+		return masterTable;
 	}
 
 }

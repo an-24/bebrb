@@ -1,12 +1,18 @@
 package org.bebrb.server.net;
 
 
+import java.io.IOException;
+
 import org.bebrb.server.net.Command.Type;
+import org.bebrb.server.utils.DoubleOrInt;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 public class CommandFactory {
 	
@@ -15,12 +21,14 @@ public class CommandFactory {
 	
 	public static Command parse(String jsonstr) throws Exception {
 		Gson gson = createGson();
-		JsonParser parser = new JsonParser();
-		JsonArray array = parser.parse(jsonstr).getAsJsonArray();
+		JsonArray array = gson.fromJson(jsonstr, JsonArray.class);
+		//JsonParser parser = new JsonParser();
+		//JsonArray array = parser.parse(jsonstr).getAsJsonArray();
 		if(array.size()<2) 
 			throw new Exception("Unknown format command -"+jsonstr);
 		String cmdType = gson.fromJson(array.get(0), String.class);
-		Command cmd = (Command) gson.fromJson(array.get(1), Command.getClass(Type.valueOf(cmdType)));
+		Command.Type typ = Type.valueOf(cmdType);
+		Command cmd = (Command) gson.fromJson(array.get(1), Command.getClass(typ));
 		return cmd;
 		
 	}
@@ -41,6 +49,27 @@ public class CommandFactory {
 		return gson.toJson(new ErrorInfo(ex.getClass().getName()+":"+ex.getMessage(),smessages));
 	}
 
+	public static class NumberAdapter extends TypeAdapter<DoubleOrInt> {
+
+		@Override
+		public void write(JsonWriter out, DoubleOrInt value) throws IOException {
+			out.value(value); 
+		}
+
+		@Override
+		public DoubleOrInt read(JsonReader in) throws IOException {
+            String json = in.nextString();
+            Number n;
+            if (json.indexOf('.') < 0) {
+                n = Integer.valueOf(json);
+            } else {
+                n = Double.valueOf(json);
+            }
+            return new DoubleOrInt(n); 		}
+
+		
+	}
+	
 	public static Gson createGson() {
 		return new GsonBuilder()
 				.setDateFormat("dd.MM.yyyy").create();

@@ -33,7 +33,7 @@ public interface Attribute {
 	 * @return  не может быть null
 	 */
 	public String getName();
-	
+
 	/**
 	 * Имя атрибута для пользователя
 	 * @return не может быть null. Когда явно не назначен равно {@link #getName()}

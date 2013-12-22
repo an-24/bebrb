@@ -154,6 +154,7 @@
  	  <attribute name="cache-control" type="tns:cacheControlType" default="None"/>
  	  <!-- TODO: check needed required if type = Hierarchy -->
  	  <attribute name="parentkey" type="QName"/>
+ 	  <attribute name="mastertable" type="QName"/>
  	  <!-- for cache-control = IsModified -->
 	  <attribute name="actualDate" type="date"/>
     </complexType>
