@@ -135,7 +135,7 @@ public class Loader {
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			CommandLogin.Response response2 = CommandFactory.createGson().fromJson(sr, CommandLogin.Response.class);
 			Thread.sleep(1000);
-			
+			/*
 			// отправляем команду GetAppContext
 			sr = send(new CommandGetAppContext(response2.getSession().getId()));
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
@@ -173,7 +173,7 @@ public class Loader {
 			sr = send(new CommandFindRecord(response2.getSession().getId(),response4.getCursorId(),0,"3"));
 			if(Command.getStatus(sr)!=Command.OK) throw new Exception("Error status");
 			Thread.sleep(1000);
-			
+			*/
 			//CommandCallInsert
 			CommandCallInsert cmd7 = new CommandCallInsert(response2.getSession().getId(),new ArrayList<>());
 			cmd7.setReferenceBookId("r1");
