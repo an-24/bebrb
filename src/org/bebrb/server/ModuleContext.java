@@ -20,8 +20,12 @@ import org.xml.sax.SAXException;
 public class ModuleContext {
 	private Logger log = Logger.getLogger("bebrb");
 	private Map<String,RemoteFunction> funcs = new HashMap<String,RemoteFunction>();
+	private String name;
+	private String uri;
 	
-	public ModuleContext(File file) throws IOException, SAXException, ParserConfigurationException {
+	public ModuleContext(String name, String uri, File file) throws IOException, SAXException, ParserConfigurationException {
+		this.name = name;
+		this.uri = uri;
 		log.info("+++load module "+file.getAbsolutePath());
 		DocumentBuilder builder = ApplicationContextImpl.createXMLBuider("/org/bebrb/resources/shema/module.xsd");
 		Document doc = builder.parse(file.getAbsolutePath());
@@ -44,6 +48,14 @@ public class ModuleContext {
 
 	public RemoteFunction getFunction(String name) {
 		return funcs.get(name);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getUri() {
+		return uri;
 	}
 
 }

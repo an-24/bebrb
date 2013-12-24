@@ -10,4 +10,12 @@
   		{
   		}
 	</function>
+	<function name="test">
+  		<arguments>
+  			<arg name="id" type="Integer"/>
+  		</arguments>
+  		{
+  			return "id="+id;
+  		}
+	</function>
 </root>

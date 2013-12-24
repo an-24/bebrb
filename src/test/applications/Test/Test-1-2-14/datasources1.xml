@@ -18,6 +18,16 @@
 		  	<attribute type="Double" name="trade_quantity" visible="true"  caption="Кол-во"/>
 		  	<attribute type="Date" name="trade_date" visible="true"  caption="Дата прихода"/>
 		  </attributes>
+	  	  <insert>
+	  	  		<arguments>
+	  				<arg name="a" type="Integer"/>
+	  				<arg name="b" type="Integer"/>
+	  				<arg name="c" type="Integer"/>
+	  	   		</arguments>
+	  			{
+	  			   return a*b*c;
+	  			}
+	  	   </insert>
 	  </datasource>
 	  
 	  <datasource id="q1" lazy="false">
@@ -70,7 +80,11 @@
 				var s = ""; 
 				while(rs.next()) {
 					s+=","+rs.getString("product_name");
-				}	  	
+				}	 
+				var m = modules.get("account");
+				var t1 = m.func("test").exec(101);
+				log(config.get("m17fr"));
+				log(data.getDataSource("q2").insert(1,2,3)); 	
 	  			return s;
 	  		}	
 	  	</insert>

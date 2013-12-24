@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -74,6 +75,8 @@ public class ApplicationContextImpl implements ApplicationContext {
 	private ConnectionPool pool;
 
 	private boolean identCaseSensitive;
+
+	private Map<String, String> config = new HashMap<>();
 
 
 	private static ResourceBundle strings = null;
@@ -144,6 +147,18 @@ public class ApplicationContextImpl implements ApplicationContext {
 		
 		Date release = DatatypeConverter.parseDate(el.getAttribute("release")).getTime();
 		version.setRelease(release);
+		
+		Element confel = XMLUtils.findChild(el, "config");
+		if(confel!=null)
+			XMLUtils.enumChildren(confel,new NotifyElement() {
+				@Override
+				public boolean notify(Element e) {
+					if(e.getNodeName().equals("option")) {
+						config.put(e.getAttribute("name"), e.getAttribute("value"));
+					}
+					return false;
+				}
+			});
 		
 		Element dbel = XMLUtils.findChild(el, "database");
 		dbDriverName = dbel.getAttribute("driver");
@@ -325,8 +340,18 @@ public class ApplicationContextImpl implements ApplicationContext {
 
 	@Override
 	public Config getConfig() {
-		// no implementation on server-side
-		return null;
+		return new Config(){
+			@Override
+			public String getParam(String name, String def) {
+				String v = config.get(name);
+				return v==null?def:v;
+			}
+
+			@Override
+			public void setParam(String name, String value) {
+				config.put(name, value);
+			}
+		};
 	}
 
 	@Override

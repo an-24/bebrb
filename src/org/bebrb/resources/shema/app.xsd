@@ -44,6 +44,18 @@
 						    	 			</sequence>
 						    	 		</complexType>
 						    	 	</element>
+						    	 	<element name="config" minOccurs="0">
+						    	 		<complexType>
+						    	 			<sequence>
+						    	 				<element name="option" maxOccurs="unbounded">
+						    	 					<complexType>
+						    	 						<attribute name="name" type="string" use="required"/>
+						    	 						<attribute name="value" type="string" use="required"/>
+						    	 					</complexType>
+						    	 				</element>
+						    	 			</sequence>
+						    	 		</complexType>
+						    	 	</element>
 						    	 	<element name="database" minOccurs="0">
 						    	 		<complexType>
 						    	 			<sequence>
