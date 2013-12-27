@@ -1,7 +1,10 @@
 package org.bebrb.server;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -9,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,8 +77,8 @@ public class ApplicationContextImpl implements ApplicationContext {
 	private ConnectionPool pool;
 
 	private boolean identCaseSensitive;
-
 	private Map<String, String> config = new HashMap<>();
+	private Properties stringTable;
 
 
 	private static ResourceBundle strings = null;
@@ -199,6 +201,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 			if(threadsel!=null)
 				maxRequestThreads = Integer.valueOf(poolel.getAttribute("max"));
 		}
+		loadResourceStrings();
 	}
 	
 	public static List<ApplicationContextImpl> getApplications() {
@@ -425,5 +428,30 @@ public class ApplicationContextImpl implements ApplicationContext {
 
 	public boolean isIdentCaseSensitive() {
 		return identCaseSensitive;
+	}
+	
+	@SuppressWarnings("serial")
+	private void loadResourceStrings() throws FileNotFoundException, IOException {
+		String path = getVersionBasePath()+File.separatorChar+"resources"+
+					  File.separatorChar+"strings";
+		File f = new File(path+File.separatorChar+"string_table_"+locale.getLanguage()+".properties");
+		if(f.exists()) {
+			stringTable = new Properties() {
+				public String getProperty(String key) {
+					try {
+						String val = super.getProperty(key); 
+						return new String(val.getBytes("ISO-8859-1"), "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						log.log(Level.SEVERE, "Error config", e);
+					};
+					return null;
+				};
+			};
+			stringTable.load(new FileInputStream(f));
+		}
+	}
+	
+	public String getResourceString(String key) {
+		return stringTable==null?null:stringTable.getProperty(key);
 	}
 }

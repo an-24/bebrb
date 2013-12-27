@@ -83,8 +83,9 @@
 				}	 
 				var m = modules.get("account");
 				var t1 = m.func("test").exec(101);
-				log(config.get("m17fr"));
-				log(data.getDataSource("q2").insert(1,2,3)); 	
+				log(config.getParam("m17fr"));
+				log(data.getDataSource("q2").insert(1,2,3));
+				log(config.getResourceString("ex01")); 	
 	  			return s;
 	  		}	
 	  	</insert>

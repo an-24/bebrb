@@ -6,6 +6,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 
 import javax.script.Invocable;
@@ -243,14 +244,24 @@ public class RemoteFunctionImpl implements RemoteFunction {
 		// config.get("propname")
 		bindings.put("config",new JSConfig(){
 			@Override
-			public String get(String name) {
+			public String getParam(String name) {
 				return appContext.getConfig().getParam(name, null);
+			}
+			@Override
+			public String getResourceString(String name) {
+				return appContext.getResourceString(name);
+			}
+			@Override
+			public Locale getLocale() {
+				return appContext.getLocale();
 			}
 		});
 	}
 	
 	public interface JSConfig {
-		public String get(String name);
+		public String getParam(String name);
+		public String getResourceString(String name);
+		public Locale getLocale();
 	}
 	
 	public interface JSUtils {
