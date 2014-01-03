@@ -19,18 +19,18 @@ import org.bebrb.server.utils.ReflectUtils;
 
 import com.google.gson.Gson;
 
-public class CommandOpenDatasource extends Command {
+public class CommandOpenDataSource extends Command {
 	private String sessionId;
 	private String id;
 	private Map<String,Object> params;
 	private Integer pageSize;
 	private List<SortAttribute> sorting;
 
-	protected CommandOpenDatasource() {
+	protected CommandOpenDataSource() {
 		super(Type.OpenDatasource);
 	}
 
-	public CommandOpenDatasource(String sessionId, String id, Map<String, Object> params) {
+	public CommandOpenDataSource(String sessionId, String id, Map<String, Object> params) {
 		this();
 		this.sessionId = sessionId;
 		this.id = id;
@@ -94,12 +94,25 @@ public class CommandOpenDatasource extends Command {
 		this.sorting = sorting;
 	}
 	
-	class Page {
+	public static class Page {
 		Integer size;
 		Boolean eof;
 		Boolean alive;
 		@NoCopy
 		List<List<Object>> data;
+		
+		public Integer getSize() {
+			return size;
+		}
+		public Boolean getEof() {
+			return eof;
+		}
+		public Boolean getAlive() {
+			return alive;
+		}
+		public List<List<Object>> getData() {
+			return data;
+		}
 	}
 	
 	public class Response extends Command.Response {

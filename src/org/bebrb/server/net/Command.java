@@ -37,7 +37,7 @@ public abstract class Command {
 		CommandLogin.class,
 		CommandLogout.class,
 		CommandGetAppContext.class,
-		CommandOpenDatasource.class,
+		CommandOpenDataSource.class,
 		CommandOpenReferenceView.class,
 		CommandGetRecord.class,
 		CommandGetRecords.class,

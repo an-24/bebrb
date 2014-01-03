@@ -51,7 +51,7 @@ public class CommandGetRecords extends Command {
 			// loop for start to finish
 			for (int i = startPage; i <= finishPage; i++) {
 				DataPageImpl dp = (DataPageImpl) pages.get(i);
-				Page page = ReflectUtils.copyFields(dp, new Page());
+				CommandOpenDataSource.Page page = ReflectUtils.copyFields(dp, new CommandOpenDataSource.Page());
 				page.data = ((DataPageImpl)dp).getData(false);
 				page.alive = dp.isAlive();
 				page.eof = dp.isEof();
@@ -63,16 +63,8 @@ public class CommandGetRecords extends Command {
 		writeToOutputStream(out, gson.toJson(response));
 	}
 
-	class Page {
-		Integer size;
-		Boolean eof;
-		Boolean alive;
-		@NoCopy
-		List<List<Object>> data;
-	}
-	
 	class Response extends Command.Response {
 		@CopyInDepth
-		List<Page> pages;
+		List<CommandOpenDataSource.Page> pages;
 	}
 }

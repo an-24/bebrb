@@ -80,6 +80,8 @@ public class ApplicationContextImpl implements ApplicationContext {
 	private Map<String, String> config = new HashMap<>();
 	private Properties stringTable;
 
+	private String home = "";
+
 
 	private static ResourceBundle strings = null;
 	
@@ -117,6 +119,10 @@ public class ApplicationContextImpl implements ApplicationContext {
 	
 	private synchronized void load() {
 		try {
+			home = System.getProperty("org.bebrb.home");
+			if(home==null) home = ""; 
+					  else if(!home.endsWith(File.separator)) home=home+File.separator; 
+			
 			log.info("start app["+name+"-"+(version==null?"default":version)+"] loading process...");
 			loadedApp = this;
 			loadApplication();
@@ -225,12 +231,12 @@ public class ApplicationContextImpl implements ApplicationContext {
 	}
 
 	public String getVersionBasePath(){
-		return "applications"+File.separatorChar+getName()+
+		return home+"applications"+File.separatorChar+getName()+
 				File.separator+getName()+"-"+getVersion()+File.separator;
 	}
 
 	public String getBasePath(){
-		return "applications"+File.separatorChar+getName()+
+		return home+"applications"+File.separatorChar+getName()+
 				File.separator;
 	}
 	

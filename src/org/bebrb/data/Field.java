@@ -3,8 +3,9 @@
  */
 package org.bebrb.data;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * Поле источника данных.
@@ -22,8 +23,9 @@ public interface Field<T> {
 	 * {@link Attribute.Type#Blob},{@link Attribute.Type#Image} или {@link Attribute.Type#Text}. Поля других типов
 	 * также могут читать себя из потока. 
 	 * @param out не может быть null
+	 * @throws IOException 
 	 */
-	public void getValue(OutputStream out);
+	public void getValue(ObjectOutputStream out) throws IOException;
 	
 	/**
 	 * Установить значение поля
@@ -35,8 +37,10 @@ public interface Field<T> {
 	 * {@link Attribute.Type#Blob},{@link Attribute.Type#Image} или {@link Attribute.Type#Text}. Поля других типов
 	 * также могут писать себя в поток. 
 	 * @param input может быть null
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
 	 */
-	public void setValue(InputStream input);
+	public void setValue(ObjectInputStream input) throws IOException, ClassNotFoundException;
 	
 	/**
 	 * Номер поля в записи
