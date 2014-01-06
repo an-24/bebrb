@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.List;
 
 
 /**
@@ -51,6 +52,21 @@ public abstract class Command {
 
 	public class Response {
 		int status;
+		String message;
+		List<String> trace;
+		
+		public List<String> getTrace() {
+			return trace;
+		}
+		public void setTrace(List<String> trace) {
+			this.trace = trace;
+		}
+		public int getStatus() {
+			return status;
+		}
+		public String getMessage() {
+			return message;
+		}
 	}
 	
 	protected Command(Type t) {

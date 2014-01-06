@@ -119,9 +119,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 	
 	private synchronized void load() {
 		try {
-			home = System.getProperty("org.bebrb.home");
-			if(home==null) home = ""; 
-					  else if(!home.endsWith(File.separator)) home=home+File.separator; 
+			home = getHome();
 			
 			log.info("start app["+name+"-"+(version==null?"default":version)+"] loading process...");
 			loadedApp = this;
@@ -210,8 +208,10 @@ public class ApplicationContextImpl implements ApplicationContext {
 		loadResourceStrings();
 	}
 	
-	public static List<ApplicationContextImpl> getApplications() {
-		File[] files = new File("applications").listFiles();
+	public static List<ApplicationContextImpl> getApplications() throws IOException {
+		File[] files = new File(getHome()+"applications").listFiles();
+		if(files==null)
+			throw new IOException("Path not found "+new File("applications").getAbsolutePath());
 		List<ApplicationContextImpl> lactx = new ArrayList<ApplicationContextImpl>();
 		for (File file : files) 
 		if(file.isDirectory()) {
@@ -238,6 +238,13 @@ public class ApplicationContextImpl implements ApplicationContext {
 	public String getBasePath(){
 		return home+"applications"+File.separatorChar+getName()+
 				File.separator;
+	}
+	
+	public static String getHome() {
+		String s = System.getProperty("org.bebrb.home");
+		if(s==null) s = ""; 
+				  else if(!s.endsWith(File.separator)) s=s+File.separator;
+		return s;
 	}
 	
 	private void loadDataSources() throws IOException, SAXException, ParserConfigurationException {

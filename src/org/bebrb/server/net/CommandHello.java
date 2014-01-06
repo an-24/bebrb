@@ -1,5 +1,6 @@
 package org.bebrb.server.net;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +25,7 @@ public class CommandHello extends Command {
 	}
 	
 	@Override
-	public void solution(OutputStream out) throws WriteStreamException {
+	public void solution(OutputStream out) throws WriteStreamException, IOException {
 		Response response = new Response();
 		List<ApplicationContextImpl> apps = ApplicationContextImpl.getApplications();
 		for (ApplicationContextImpl ctx : apps) {
