@@ -2,6 +2,7 @@ package org.bebrb.server;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -20,6 +21,7 @@ public class Server {
 	
 	private static int port = 8080;
 	private static int queueDepth = 20;
+	private static String home ="";
 	
 	public static void main(String[] args) {
 		String s;
@@ -27,6 +29,11 @@ public class Server {
 		if(s!=null) port = new Integer(s);
 		s = System.getProperty("org.bebrb.queue-depth");
 		if(s!=null) queueDepth = new Integer(s);
+		s = System.getProperty("org.bebrb.home");
+		if(s!=null) {
+			if(!s.endsWith(File.separator)) s=s+File.separator;
+			home = s;
+		}
 		
 		Executors.newSingleThreadExecutor().execute(new ServerRunnable());
 	}
@@ -100,5 +107,9 @@ public class Server {
 			}
 		}
 		
+	}
+
+	public static String getHome() {
+		return home;
 	}
 }

@@ -241,10 +241,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 	}
 	
 	public static String getHome() {
-		String s = System.getProperty("org.bebrb.home");
-		if(s==null) s = ""; 
-				  else if(!s.endsWith(File.separator)) s=s+File.separator;
-		return s;
+		return Server.getHome();
 	}
 	
 	private void loadDataSources() throws IOException, SAXException, ParserConfigurationException {
