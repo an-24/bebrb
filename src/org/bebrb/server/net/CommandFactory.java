@@ -2,6 +2,7 @@ package org.bebrb.server.net;
 
 
 import java.io.IOException;
+import java.util.List;
 
 import org.bebrb.server.net.Command.Type;
 import org.bebrb.server.utils.DoubleOrInt;
@@ -46,7 +47,8 @@ public class CommandFactory {
 		final String[] smessages = new String[stack.length];
 		for (int i = 0; i < stack.length; i++) 
 			smessages[i] = stack[i].toString();
-		return gson.toJson(new ErrorInfo(ex.getClass().getName()+":"+ex.getMessage(),smessages));
+		return gson.toJson(new ErrorInfo(ex.getClass().getName()+":"+ex.getMessage(), 
+				ex.getMessage(),smessages));
 	}
 
 	public static class NumberAdapter extends TypeAdapter<DoubleOrInt> {
@@ -82,10 +84,12 @@ public class CommandFactory {
 	static class ErrorInfo {
 		public int status = 100;
 		public String message;
+		public String messageForUser;
 		public String[] trace;
 		
-		public ErrorInfo(String message, String[] trace) {
+		public ErrorInfo(String message, String messageForUser,String[] trace) {
 			this.message = message;
+			this.messageForUser = messageForUser;
 			this.trace = trace;
 		}
 	}

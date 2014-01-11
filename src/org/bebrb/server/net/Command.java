@@ -53,6 +53,7 @@ public abstract class Command {
 	public class Response {
 		int status;
 		String message;
+		String messageForUser;
 		List<String> trace;
 		
 		public List<String> getTrace() {
@@ -66,6 +67,9 @@ public abstract class Command {
 		}
 		public String getMessage() {
 			return message;
+		}
+		public String getMessageForUser() {
+			return messageForUser;
 		}
 	}
 	
