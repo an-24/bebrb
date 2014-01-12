@@ -31,10 +31,23 @@ public class CommandGetAppContext extends Command {
 		SessionContextImpl session = (SessionContextImpl) SessionContextImpl.loadSession(sessionId);
 		ApplicationContextImpl ctx = session.getAppContext();
 		ReflectUtils.copyFields(ctx, response);
+		filter(response);
 		Gson gson = CommandFactory.createGson();
 		writeToOutputStream(out, gson.toJson(response));
 	}
 	
+	private void filter(Response response) {
+		// filter public data source
+		List<DataSource> list = response.dataSources;
+		for (int i = 0; i < list.size(); i++) {
+			DataSource ds = list.get(i);
+			if(!ds.published) {
+				list.remove(i);
+				i--;
+			}
+		}
+	}
+
 	public static class User {
 		String loginName;
 		String fullName;
@@ -82,6 +95,7 @@ public class CommandGetAppContext extends Command {
 		List<Attribute> attributes;
 		String key;
 		org.bebrb.data.DataSource.CacheControl cacheControl;
+		Boolean published;
 		Boolean lazy;
 		Boolean readOnly;
 		Boolean canAdd;

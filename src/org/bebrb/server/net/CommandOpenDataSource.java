@@ -45,6 +45,8 @@ public class CommandOpenDataSource extends Command {
 		DataSource ds = session.getAppContext().getDataSourceManager().findDataSource(id);
 		if(ds==null)
 			throw new ExecuteException("DatasourceNotFound",id);
+		if(!ds.isPublished())
+			throw new ExecuteException("DatasourceNotPublished",id);
 		//id cursor
 		BigInteger cursorId = ((DataSourceImpl)ds).newCursorId();
 		// execute

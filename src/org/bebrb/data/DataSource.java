@@ -15,6 +15,12 @@ public interface DataSource extends BaseDataSet {
 	public static final int DEFAULT_PAGE_MAXSIZE = 100;
 	
 	/**
+	 * Тест на публичность источника данных. Только публичные источники могут быть переданы на клиента
+	 * @return если true то источник публичен
+	 */
+	public boolean isPublished();
+	
+	/**
 	 * Тест на получение данных в момент обращения к ним
 	 * @return если false тогда данные получаются сразу при вызове {@link #open(Map)}, иначе
 	 * данные получаются постранично при вызове  {@link DataPage#getRecords()}

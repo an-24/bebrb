@@ -58,10 +58,12 @@ public class DataSourceImpl implements DataSource {
 	
 	private List<SortAttribute> sortedAttributes;
 	private ViewImpl view;
+	private boolean pub;
 
 	public DataSourceImpl(ReferenceBook ref, View view, Date actualDate) {
 		id = ref.getMetaData().getId()+"."+view.getName();
 		lazy = view.isLazy();
+		pub = true; // data source for view have type "public" always
 		cc = ref.getMetaData().getCacheControl();
 		if (cc == DataSource.CacheControl.IsModified)
 			if (actualDate==null)
@@ -81,6 +83,7 @@ public class DataSourceImpl implements DataSource {
 	public DataSourceImpl(Element el, DataSources dscontext) throws Exception {
 		id = el.getAttribute("id");
 		lazy = Boolean.parseBoolean(el.getAttribute("lazy"));
+		pub = Boolean.parseBoolean(el.getAttribute("public"));
 		cc = DataSource.CacheControl.valueOf(el.getAttribute("cache-control"));
 		if (cc == DataSource.CacheControl.IsModified)
 			if (el.getAttribute("actualDate").isEmpty())
@@ -471,6 +474,10 @@ public class DataSourceImpl implements DataSource {
 
 	public RemoteFunction getDeleteFunc() {
 		return delRPC;
+	}
+
+	public boolean isPublished() {
+		return pub;
 	}
 
 	
