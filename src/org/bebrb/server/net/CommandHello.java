@@ -37,11 +37,15 @@ public class CommandHello extends Command {
 		writeToOutputStream(out, gson.toJson(response));
 	}
 	
-	public class AppInfo {
+	static public class AppInfo {
 		String name;
 		String title;
 		Date release;
 		String lang;
+		
+		public AppInfo(String name) {
+			this(name,null,null,null);
+		}
 		
 		public AppInfo(String name, String title, Date release, Locale locale) {
 			this.name = name;
