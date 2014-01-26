@@ -92,6 +92,9 @@ public class ApplicationContextImpl implements ApplicationContext {
 	}
 
 	public ApplicationContextImpl(String name) {
+		// maybe starting '/' 
+		if(name.startsWith("/")) name = name.substring(1);
+		
 		this.name = name;
 		String[] anames = name.split("/");
 		if(anames.length>1) {
