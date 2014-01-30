@@ -8,10 +8,16 @@ public interface BaseDataSet {
 	public static enum CacheControl {None,WithinSession,IsModified};
 	
 	/**
-	 * Уникальный идентификатор источника
-	 * @return не может быть null
+	 * Unique data source id
+	 * @return can not be null
 	 */
 	public String getId();
+
+	/**
+	 * Name of data source 
+	 * @return can not be null
+	 */
+	public String getName();
 	
 	/**
 	 * Возвращает список атрибутов источника данных

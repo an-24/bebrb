@@ -59,9 +59,11 @@ public class DataSourceImpl implements DataSource {
 	private List<SortAttribute> sortedAttributes;
 	private ViewImpl view;
 	private boolean pub;
+	private String name;
 
 	public DataSourceImpl(ReferenceBook ref, View view, Date actualDate) {
 		id = ref.getMetaData().getId()+"."+view.getName();
+		name = ref.getMetaData().getName()+"."+view.getName();
 		lazy = view.isLazy();
 		pub = true; // data source for view have type "public" always
 		cc = ref.getMetaData().getCacheControl();
@@ -82,6 +84,7 @@ public class DataSourceImpl implements DataSource {
 			
 	public DataSourceImpl(Element el, DataSources dscontext) throws Exception {
 		id = el.getAttribute("id");
+		name = el.getAttribute("name");
 		lazy = Boolean.parseBoolean(el.getAttribute("lazy"));
 		pub = Boolean.parseBoolean(el.getAttribute("public"));
 		cc = DataSource.CacheControl.valueOf(el.getAttribute("cache-control"));
@@ -109,6 +112,7 @@ public class DataSourceImpl implements DataSource {
 						+ "] in reference book[" + refref.getAttribute("id")
 						+ "] not found");
 			attrs.addAll(rbook.getMetaData().getAttributes());
+			name = rbook.getMetaData().getName();
 			keyAttribute = rbook.getMetaData().getKey();
 			insRPC = rbook.getInsertFunc();
 			updRPC = rbook.getUpdateFunc();
@@ -174,6 +178,11 @@ public class DataSourceImpl implements DataSource {
 	@Override
 	public String getId() {
 		return id;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override
@@ -479,6 +488,7 @@ public class DataSourceImpl implements DataSource {
 	public boolean isPublished() {
 		return pub;
 	}
+
 
 	
 }

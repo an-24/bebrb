@@ -122,6 +122,7 @@ public class CommandGetAppContext extends Command {
 	
 	public static class RMetaData {
 		String referenceTitle;
+		String name;
 		Boolean historyAvailable;
 		org.bebrb.reference.ReferenceBookMetaData.ReferenceType referenceType;
 		Date actualDate;
@@ -146,6 +147,9 @@ public class CommandGetAppContext extends Command {
 		public Boolean getCanChoiseFolder() {
 			return canChoiseFolder;
 		}
+		public String getName() {
+			return name;
+		}
 	}
 	
 	public static class Reference {
@@ -168,6 +172,7 @@ public class CommandGetAppContext extends Command {
 	
 	public static class DataSource {
 		String id;
+		String name;
 		@CopyInDepth
 		List<Attribute> attributes;
 		String key;
@@ -184,6 +189,11 @@ public class CommandGetAppContext extends Command {
 		public String getId() {
 			return id;
 		}
+
+		public String getName() {
+			return name;
+		}
+		
 		public List<Attribute> getAttributes() {
 			return attributes;
 		}
@@ -230,6 +240,8 @@ public class CommandGetAppContext extends Command {
 		List<Reference> references;
 		@CopyInDepth
 		List<DataSource> dataSources;
+		@CopyInDepth
+		List<DataSource> docs;
 		
 		public String getName() {
 			return name;
@@ -251,6 +263,9 @@ public class CommandGetAppContext extends Command {
 		}
 		public List<DataSource> getDataSources() {
 			return dataSources;
+		}
+		public List<DataSource> getDocs() {
+			return docs;
 		}
 	}
 }

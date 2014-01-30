@@ -19,18 +19,20 @@ import com.google.gson.Gson;
  * </pre>
  */
 public class CommandHello extends Command {
+	String lang;
 
 	public CommandHello() {
 		super(Type.Hello);
 	}
 	
 	@Override
-	public void solution(OutputStream out) throws WriteStreamException, IOException {
+	public void solution(OutputStream out) throws WriteStreamException, IOException, ExecuteException {
 		Response response = new Response();
 		List<ApplicationContextImpl> apps = ApplicationContextImpl.getApplications();
 		for (ApplicationContextImpl ctx : apps) {
-			response.apps.add(new AppInfo(ctx.getName(),ctx.getTitle(),
-					ctx.getVersion().getRelease(),ctx.getLocale()));
+			if(lang==null || (lang!=null && ctx.getLocale().equals(new Locale(lang).getLanguage())))
+				response.apps.add(new AppInfo(ctx.getName(),ctx.getTitle(),
+						ctx.getVersion().getRelease(),ctx.getLocale()));
 		};
 		
 		Gson gson = CommandFactory.createGson();

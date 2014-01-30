@@ -68,7 +68,7 @@ public class CommandLogin extends Command {
 	public void solution(OutputStream out) throws WriteStreamException, Exception {
 		Response response = new Response();
 		
-		ApplicationContextImpl ctx = new ApplicationContextImpl(app);
+		ApplicationContextImpl ctx = new ApplicationContextImpl(app, userAgent!=null?userAgent.lang:null);
 		SessionContext session = ctx.login(user,pswd,userAgent);
 		if(session==null)
 			throw new ExecuteException("loginError");

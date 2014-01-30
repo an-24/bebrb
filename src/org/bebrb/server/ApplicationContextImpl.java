@@ -37,6 +37,7 @@ import org.bebrb.data.DataSource;
 import org.bebrb.forms.Action;
 import org.bebrb.forms.Form;
 import org.bebrb.reference.ReferenceBook;
+import org.bebrb.server.net.ExecuteException;
 import org.bebrb.server.utils.XMLUtils;
 import org.bebrb.server.utils.XMLUtils.NotifyElement;
 import org.bebrb.user.User;
@@ -85,13 +86,15 @@ public class ApplicationContextImpl implements ApplicationContext {
 
 	private static ResourceBundle strings = null;
 	
-	public ApplicationContextImpl(String name, Version version) {
+/*	
+	public ApplicationContextImpl(String name, Version version) throws ExecuteException {
 		this.name = name;
 		this.version = version;
 		load();
 	}
+*/	
 
-	public ApplicationContextImpl(String name) {
+	public ApplicationContextImpl(String name, String lang) throws ExecuteException {
 		// maybe starting '/' 
 		if(name.startsWith("/")) name = name.substring(1);
 		
@@ -101,7 +104,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 			this.name = anames[0];
 			this.version = new Version(anames[1]);
 		}
-		load();
+		load(lang);
 	}
 	
 	public List<String> getDataModules() {
@@ -120,13 +123,21 @@ public class ApplicationContextImpl implements ApplicationContext {
 		return title;
 	}
 	
-	private synchronized void load() {
+	private synchronized void load(String lang) throws ExecuteException {
+		if(lang==null) lang = Locale.getDefault().getLanguage();
+		// temp locale needed
+		// for handle config error
+		strings = ResourceBundle.getBundle("org/bebrb/resources/strings/messages", new Locale(lang), new UTF8ResourceBundleControl());
+		
 		try {
 			home = getHome();
-			
 			log.info("start app["+name+"-"+(version==null?"default":version)+"] loading process...");
 			loadedApp = this;
 			loadApplication();
+			// accepted lang not equal application lang 
+			if(!locale.getLanguage().equalsIgnoreCase(lang))
+				log.log(Level.WARNING,"Accepted language not equals a application language ("+lang+"!="+locale.getLanguage()+")");
+			// override resource
 			strings = ResourceBundle.getBundle("org/bebrb/resources/strings/messages", locale, new UTF8ResourceBundleControl()); 
 			loadDataSources();
 			afterLoad();
@@ -134,6 +145,7 @@ public class ApplicationContextImpl implements ApplicationContext {
 			log.info("app loading process [ok]");
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Error config", e);
+			throw new ExecuteException("LoadApplicationError",name); 
 		}
 	}
 
@@ -211,14 +223,14 @@ public class ApplicationContextImpl implements ApplicationContext {
 		loadResourceStrings();
 	}
 	
-	public static List<ApplicationContextImpl> getApplications() throws IOException {
+	public static List<ApplicationContextImpl> getApplications() throws IOException, ExecuteException {
 		File[] files = new File(getHome()+"applications").listFiles();
 		if(files==null)
 			throw new IOException("Path not found "+new File("applications").getAbsolutePath());
 		List<ApplicationContextImpl> lactx = new ArrayList<ApplicationContextImpl>();
 		for (File file : files) 
 		if(file.isDirectory()) {
-			ApplicationContextImpl ctx = new ApplicationContextImpl(file.getName());
+			ApplicationContextImpl ctx = new ApplicationContextImpl(file.getName(),null);
 			lactx.add(ctx);
 		}
 		return lactx;
