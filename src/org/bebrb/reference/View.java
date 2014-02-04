@@ -3,8 +3,6 @@
  */
 package org.bebrb.reference;
 
-import java.util.Map;
-
 import org.bebrb.data.DataPage;
 import org.bebrb.data.DataSource;
 
@@ -23,12 +21,10 @@ public interface View {
 	 */
 	public String getTitle();
 	/**
-	 * Возвращает данные представления справочника. При первом обращении за сеанс
-	 * проводится проверка кеша справочника. Если он устарел происходит вызов {@link #refresh()}
-	 * @return не может быть null
-	 * @throws Exception
+	 * Return view as data source
+	 * @return is not null
 	 */
-	public DataSource getDatasource() throws Exception;
+	public DataSource getDataSource();
 	/**
 	 * Обновление данных в кеше справочника. Приводит к сетевому соединению и обмену
 	 * @throws Exception

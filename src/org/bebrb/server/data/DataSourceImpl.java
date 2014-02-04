@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.xml.bind.DatatypeConverter;
-
 import org.bebrb.data.Attribute;
 import org.bebrb.data.DataPage;
 import org.bebrb.data.DataSource;
@@ -75,9 +74,9 @@ public class DataSourceImpl implements DataSource {
 		sqlText = ((ViewImpl)view).getSQL();
 		attrs.addAll(ref.getMetaData().getAttributes());
 		keyAttribute = ref.getMetaData().getKey();
-		insRPC = ref.getInsertFunc();
-		updRPC = ref.getUpdateFunc();
-		delRPC = ref.getDeleteFunc();
+		insRPC = ((ReferenceBookImpl)ref).getInsertFunc();
+		updRPC = ((ReferenceBookImpl)ref).getUpdateFunc();
+		delRPC = ((ReferenceBookImpl)ref).getDeleteFunc();
 		dbinf = ((ReferenceBookImpl)ref).getDatabaseInfo();
 		
 	}
@@ -114,9 +113,9 @@ public class DataSourceImpl implements DataSource {
 			attrs.addAll(rbook.getMetaData().getAttributes());
 			name = rbook.getMetaData().getName();
 			keyAttribute = rbook.getMetaData().getKey();
-			insRPC = rbook.getInsertFunc();
-			updRPC = rbook.getUpdateFunc();
-			delRPC = rbook.getDeleteFunc();
+			insRPC = ((ReferenceBookImpl)rbook).getInsertFunc();
+			updRPC = ((ReferenceBookImpl)rbook).getUpdateFunc();
+			delRPC = ((ReferenceBookImpl)rbook).getDeleteFunc();
 			sqlText = ((ViewImpl)rbview).getSQL();
 		} else {
 			sqlText = XMLUtils.getTextContent(XMLUtils.findChild(el, "sql"));
@@ -225,11 +224,6 @@ public class DataSourceImpl implements DataSource {
 		return updRPC != null;
 	}
 
-	@Override
-	public List<DataPage> open(Map<String, Object> params) throws Exception {
-		notSupportedOnServer();
-		return null;
-	}
 
 	@Override
 	public int getMaxSizeDataPage() {
@@ -489,6 +483,15 @@ public class DataSourceImpl implements DataSource {
 		return pub;
 	}
 
+	@Override
+	public void open(Map<String, Object> params, OnOpen callback) {
+		notSupportedOnServer();
+	}
+
+	@Override
+	public void stop() {
+		notSupportedOnServer();
+	}
 
 	
 }

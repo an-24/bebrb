@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.bebrb.data.BaseDataSet.CacheControl;
 import org.bebrb.server.ApplicationContextImpl;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.utils.CopyInDepth;
@@ -103,8 +104,9 @@ public class CommandGetAppContext extends Command {
 	public static class View {
 		String name;
 		String title;
-		String dataSetId;
 		Integer root;
+		Boolean lazy;
+		Reference referenceBook;
 		
 		public String getName() {
 			return name;
@@ -112,15 +114,20 @@ public class CommandGetAppContext extends Command {
 		public String getTitle() {
 			return title;
 		}
-		public String getDataSetId() {
-			return dataSetId;
+		public Reference  getReferenceBook() {
+			return referenceBook;
 		}
 		public Integer getRoot() {
 			return root;
 		}
+		public Boolean getLazy() {
+			return lazy;
+		}
+		
 	}
 	
 	public static class RMetaData {
+		String id;
 		String referenceTitle;
 		String name;
 		Boolean historyAvailable;
@@ -128,6 +135,13 @@ public class CommandGetAppContext extends Command {
 		Date actualDate;
 		String parentKey;
 		Boolean canChoiseFolder;
+		@CopyInDepth
+		List<Attribute> attributes;
+		private CacheControl cacheControl;
+		
+		public String getId() {
+			return id;
+		} 
 		
 		public String getReferenceTitle() {
 			return referenceTitle;
@@ -150,6 +164,12 @@ public class CommandGetAppContext extends Command {
 		public String getName() {
 			return name;
 		}
+		public List<Attribute> getAttributes() {
+			return attributes;
+		}
+		public org.bebrb.data.DataSource.CacheControl getCacheControl() {
+			return cacheControl;
+		}
 	}
 	
 	public static class Reference {
@@ -158,6 +178,9 @@ public class CommandGetAppContext extends Command {
 		String defaultView;
 		@CopyInDepth
 		Map<String, View> views;
+		Boolean canAdd;
+		Boolean canDelete;
+		Boolean canEdit;
 		
 		public RMetaData getMetaData() {
 			return metaData;
@@ -166,7 +189,19 @@ public class CommandGetAppContext extends Command {
 			return defaultView;
 		}
 		public Map<String, View> getViews() {
+			for (View v : views.values()) {
+				v.referenceBook = this;
+			}
 			return views;
+		}
+		public Boolean getCanAdd() {
+			return canAdd;
+		}
+		public Boolean getCanDelete() {
+			return canDelete;
+		}
+		public Boolean getCanEdit() {
+			return canEdit;
 		}
 	}
 	

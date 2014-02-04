@@ -34,7 +34,7 @@ public class ViewImpl implements View {
 	}
 
 	@Override
-	public DataSource getDatasource() throws Exception {
+	public DataSource getDataSource() {
 		return new DataSourceImpl(referenceBook, this, referenceBook.getMetaData().getActualDate());
 	}
 

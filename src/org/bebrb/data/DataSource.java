@@ -6,6 +6,8 @@ package org.bebrb.data;
 import java.util.List;
 import java.util.Map;
 
+
+
 /**
  * Источник данных
  *
@@ -52,11 +54,15 @@ public interface DataSource extends BaseDataSet {
 	public boolean isCanEdit();
 	
 	/**
-	 * Список страниц
-	 * @return  не может быть null
-	 * @throws Exception
+	 * Открывает источник в асинхронном режиме. Если вызов удачен вызывает {@link OnOpen#onAfterOpen()}
+	 * , иначе {@link OnOpen#onError(Exception)}.  
 	 */
-	public List<DataPage> open(Map<String,Object> params) throws Exception;
+	public void open(Map<String,Object> params, OnOpen callback);
+	
+	/**
+	 * Останавливает выполнение операций открытия или поучения данных
+	 */
+	public void stop();
 	
 	/**
 	 * @return максимальный размер пакета с данными
@@ -169,5 +175,10 @@ public interface DataSource extends BaseDataSet {
 	 */
 	public void removeValidator(OnValidate onvalidate);
 	
+	
+	public interface OnOpen {
+		public void onAfterOpen();
+		public void onError(Exception e);
+	} 
 	
 }

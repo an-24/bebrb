@@ -28,27 +28,23 @@ public interface ReferenceBook {
 	 * @return представление. Не может быть null
 	 */
 	public View getDefaultView();
+	/**
+	 * Тест на возможность добавлять записи 
+	 * @return true если в источник можно добавлять новые записи
+	 */
+	public boolean isCanAdd();
+
+	/**
+	 * Тест на возможность удаления записей 
+	 * @return true если в источнике можно удалять записи
+	 */
+	public boolean isCanDelete();
 	
 	/**
-	 * Удаленная процедура для вставки данных
-	 * @return может быть null
+	 * Тест на возможность изменять записи 
+	 * @return true если в источник можно изменять записи
 	 */
-	public RemoteFunction getInsertFunc();
-	/**
-	 * Удаленная процедура для изменения(обновления) данных
-	 * @return может быть null
-	 */
-	public RemoteFunction getUpdateFunc();
-	/**
-	 * Удаленная процедура для удаления данных
-	 * @return может быть null
-	 */
-	public RemoteFunction getDeleteFunc();
+	public boolean isCanEdit();
 	
-	/**
-	 * Returns query used to retrieve a record in reference book
-	 * @return not is null
-	 */
-	public String getGetRecordSQL();
 
 }

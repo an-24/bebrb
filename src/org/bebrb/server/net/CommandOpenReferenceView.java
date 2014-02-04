@@ -18,8 +18,6 @@ import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.data.DataPageImpl;
 import org.bebrb.server.data.DataSourceImpl;
 import org.bebrb.server.data.DataSourceImpl.SortAttribute;
-import org.bebrb.server.utils.CopyInDepth;
-import org.bebrb.server.utils.NoCopy;
 import org.bebrb.server.utils.ReflectUtils;
 
 import com.google.gson.Gson;
@@ -34,6 +32,7 @@ public class CommandOpenReferenceView  extends Command {
 	private Integer folderId;
 	private Integer pageSize;
 	private List<SortAttribute> sorting;
+	private boolean firstPageBonus = true;
 
 
 	protected CommandOpenReferenceView() {
@@ -82,7 +81,7 @@ public class CommandOpenReferenceView  extends Command {
 	@Override
 	public void solution(OutputStream out) throws WriteStreamException,
 			Exception {
-		Response response = new Response();
+		CommandOpenDataSource.Response response = new CommandOpenDataSource.Response();
 		SessionContextImpl session = (SessionContextImpl) SessionContextImpl.loadSession(sessionId);
 		ReferenceBook ref = session.getAppContext().getDataSourceManager().findReference(refId);
 		if(ref==null)
@@ -91,7 +90,8 @@ public class CommandOpenReferenceView  extends Command {
 		if(viewId!=null) view = ref.getViews().get(viewId);
 		if(view==null)
 			throw new ExecuteException("ViewNotFound",viewId);
-		DataSource ds = view.getDatasource();
+		DataSource ds = view.getDataSource();
+		boolean lazy = ds.isLazy();
 		//id cursor
 		BigInteger cursorId = ((DataSourceImpl)ds).newCursorId();
 		// execute
@@ -115,14 +115,23 @@ public class CommandOpenReferenceView  extends Command {
 			if(pages!=null) {
 				response.pages = new ArrayList<>(pages.size());
 				for (DataPage dp : pages) {
-					Page page = ReflectUtils.copyFields(dp, new Page());
+					CommandOpenDataSource.Page page = ReflectUtils.copyFields(dp, new CommandOpenDataSource.Page());
 					page.data = ((DataPageImpl)dp).getData(true);
 					response.pages.add(page);
+				}
+				// first page bonus!
+				if(lazy && firstPageBonus) {
+					DataPage dp = pages.get(0); 
+					CommandOpenDataSource.Page page = response.pages.get(0);
+					page.data = ((DataPageImpl)dp).getData(false);
+					page.alive = dp.isAlive();
+					page.eof = dp.isEof();
+					page.size = dp.getSize();
 				}
 			}
 		};
 		//id cursor & put in cache
-		if(pages!=null && ds.isLazy()) {
+		if(pages!=null && lazy) {
 			session.getDatasetCache().put(cursorId, pages);
 			response.cursorId = cursorId.toString();
 		};
@@ -134,19 +143,5 @@ public class CommandOpenReferenceView  extends Command {
 		if(params==null) params = new HashMap<String, Object>();
 		return params;
 	}
-
-	class Page {
-		Integer size;
-		Boolean eof;
-		Boolean alive;
-		@NoCopy
-		List<List<Object>> data;
-	}
 	
-	class Response extends Command.Response {
-		String cursorId;
-		@CopyInDepth
-		List<Page> pages;
-	}
-
 }

@@ -50,7 +50,7 @@ public abstract class Command {
 	
 	public transient final Type type;
 
-	public class Response {
+	public static class Response {
 		int status;
 		String message;
 		String messageForUser;

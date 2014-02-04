@@ -109,7 +109,6 @@ public class ReferenceBookMetaDataImpl implements ReferenceBookMetaData {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return title;
 	}
 

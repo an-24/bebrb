@@ -86,17 +86,14 @@ public class ReferenceBookImpl implements ReferenceBook {
 		return defaultView;
 	}
 
-	@Override
 	public RemoteFunction getInsertFunc() {
 		return insRPC;
 	}
 
-	@Override
 	public RemoteFunction getUpdateFunc() {
 		return updRPC;
 	}
 
-	@Override
 	public RemoteFunction getDeleteFunc() {
 		return delRPC;
 	}
@@ -105,7 +102,6 @@ public class ReferenceBookImpl implements ReferenceBook {
 		return dbinf;
 	}
 
-	@Override
 	public String getGetRecordSQL() {
 		return getSql;
 	}
@@ -124,12 +120,27 @@ public class ReferenceBookImpl implements ReferenceBook {
 		   append("from (").append(view.getSQL()).append(") as A ").
 		   append("order by A.").append(meta.getAttrFolder().getName()).
 		   append(" ").append(meta.getOrderFolder());
-		DataSourceImpl ds = (DataSourceImpl) view.getDatasource();
+		DataSourceImpl ds = (DataSourceImpl) view.getDataSource();
 		List<SortAttribute> sortedlist = ds.getSortedAttributes();
 		if(sortedlist!=null) {
 			sb.append(",").append(ds.orderBy("A", sortedlist));
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public boolean isCanAdd() {
+		return insRPC!=null;
+	}
+
+	@Override
+	public boolean isCanDelete() {
+		return delRPC!=null;
+	}
+
+	@Override
+	public boolean isCanEdit() {
+		return updRPC!=null;
 	}
 
 }

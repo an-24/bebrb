@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Date;
 
 import org.bebrb.data.Attribute.Type;
 import org.bebrb.server.net.ExecuteException;
@@ -18,6 +19,27 @@ public class DBUtils {
 			if(l.equalsIgnoreCase(fname)) return i;
 		};
 		return -1;
+	}
+	
+	public static Class getJavaType(org.bebrb.data.Attribute.Type type) {
+		switch (type) {
+			case Money:		
+			case Integer:	return Integer.class;
+			
+			case Text:
+			case String:	return String.class;
+			
+			case Double:	return Double.class;
+			
+			case Date:		return Date.class;
+			
+			case Boolean:	return Boolean.class;
+			
+			case Image:		
+			case Blob:
+							return byte[].class; 
+		}
+		return null;
 	}
 
 	public static Object cast(String v, org.bebrb.data.Attribute.Type type) throws ExecuteException {

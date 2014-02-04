@@ -48,7 +48,7 @@ public class CommandGetRecord extends Command{
 			if(ref==null)
 				throw new ExecuteException("ReferenceNotFound",refId);
 			dsId = refId;
-			sqltext = ref.getGetRecordSQL();
+			sqltext = ((ReferenceBookImpl)ref).getGetRecordSQL();
 			con = ((ReferenceBookImpl)ref).getConnection(session);
 		} else
 		if(datasourceId!=null) {

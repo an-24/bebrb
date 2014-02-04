@@ -25,6 +25,7 @@ public class CommandOpenDataSource extends Command {
 	private Map<String,Object> params;
 	private Integer pageSize;
 	private List<SortAttribute> sorting;
+	private boolean firstPageBonus = true;
 
 	protected CommandOpenDataSource() {
 		super(Type.OpenDatasource);
@@ -47,6 +48,7 @@ public class CommandOpenDataSource extends Command {
 			throw new ExecuteException("DatasourceNotFound",id);
 		if(!ds.isPublished())
 			throw new ExecuteException("DatasourceNotPublished",id);
+		boolean lazy = ds.isLazy();
 		//id cursor
 		BigInteger cursorId = ((DataSourceImpl)ds).newCursorId();
 		// execute
@@ -59,13 +61,22 @@ public class CommandOpenDataSource extends Command {
 				response.pages = new ArrayList<>(pages.size());
 				for (DataPage dp : pages) {
 					Page page = ReflectUtils.copyFields(dp, new Page());
-					page.data = ((DataPageImpl)dp).getData(true);
+					page.data = ((DataPageImpl)dp).getData(lazy);
 					response.pages.add(page);
+				}
+				// first page bonus!
+				if(lazy && firstPageBonus) {
+					DataPage dp = pages.get(0); 
+					Page page = response.pages.get(0);
+					page.data = ((DataPageImpl)dp).getData(false);
+					page.alive = dp.isAlive();
+					page.eof = dp.isEof();
+					page.size = dp.getSize();
 				}
 			}
 		};
 		//id cursor & put in cache
-		if(ds.isLazy()) {
+		if(lazy) {
 			session.getDatasetCache().put(cursorId, pages);
 			response.cursorId = cursorId.toString();
 		};
@@ -117,7 +128,7 @@ public class CommandOpenDataSource extends Command {
 		}
 	}
 	
-	public class Response extends Command.Response {
+	public static class Response extends Command.Response {
 		String cursorId;
 		@CopyInDepth
 		List<Page> pages;
