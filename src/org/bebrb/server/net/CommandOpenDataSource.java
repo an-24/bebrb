@@ -52,11 +52,13 @@ public class CommandOpenDataSource extends Command {
 		//id cursor
 		BigInteger cursorId = ((DataSourceImpl)ds).newCursorId();
 		// execute
+		DataSourceImpl dsimpl = ((DataSourceImpl)ds);
 		List<DataPage> pages;
-		try(Connection con = ((DataSourceImpl)ds).getConnection(session)) {
-			if(pageSize!=null) ((DataSourceImpl)ds).setMaxSizeDataPage(pageSize);
-			if(sorting!=null) ((DataSourceImpl)ds).setSortedAttributes(sorting);
-			pages = ((DataSourceImpl)ds).innerOpen(con,params,cursorId,session);
+		try(Connection con = dsimpl.getConnection(session)) {
+			if(pageSize!=null) dsimpl.setMaxSizeDataPage(pageSize);
+			if(sorting!=null) dsimpl.setSortedAttributes(sorting);
+			pages = dsimpl.innerOpen(con,params,cursorId,session);
+			response.recordCount = dsimpl.getRecordCount();
 			if(pages!=null) {
 				response.pages = new ArrayList<>(pages.size());
 				for (DataPage dp : pages) {
@@ -132,12 +134,17 @@ public class CommandOpenDataSource extends Command {
 		String cursorId;
 		@CopyInDepth
 		List<Page> pages;
+		Integer recordCount;
 		
 		public BigInteger getCursorId() {
-			return new BigInteger(cursorId);
+			return cursorId==null?null:new BigInteger(cursorId);
 		}
 		public List<Page> getPages() {
 			return pages;
+		}
+		
+		public Integer getRecordCount() {
+			return recordCount;
 		}
 	}
 

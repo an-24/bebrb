@@ -49,6 +49,11 @@ public class CommandOpenReferenceView  extends Command {
 		this(sessionId,refId);
 		this.viewId = viewId;
 	}
+
+	public CommandOpenReferenceView(String sessionId, String refId, String viewId, Map<String, Object> params) {
+		this(sessionId,refId, viewId);
+		this.params = params;
+	}
 	
 	public void setParams(Map<String, Object> params) {
 		this.params = params;
@@ -92,16 +97,17 @@ public class CommandOpenReferenceView  extends Command {
 			throw new ExecuteException("ViewNotFound",viewId);
 		DataSource ds = view.getDataSource();
 		boolean lazy = ds.isLazy();
+		DataSourceImpl dsimpl = ((DataSourceImpl)ds);
 		//id cursor
-		BigInteger cursorId = ((DataSourceImpl)ds).newCursorId();
+		BigInteger cursorId = dsimpl.newCursorId();
 		// execute
 		List<DataPage> pages;
-		try(Connection con = ((DataSourceImpl)ds).getConnection(session)) {
+		try(Connection con = dsimpl.getConnection(session)) {
 			
-			((DataSourceImpl)ds).setReferenceBookView(view);
+			dsimpl.setReferenceBookView(view);
 					
-			if(pageSize!=null) ((DataSourceImpl)ds).setMaxSizeDataPage(pageSize);
-			if(sorting!=null) ((DataSourceImpl)ds).setSortedAttributes(sorting);
+			if(pageSize!=null) dsimpl.setMaxSizeDataPage(pageSize);
+			if(sorting!=null) dsimpl.setSortedAttributes(sorting);
 			
 			if(ref.getMetaData().isHistoryAvailable()) {
 				getParams().put("viewDate", viewDate==null?new Date():viewDate);
@@ -110,8 +116,9 @@ public class CommandOpenReferenceView  extends Command {
 				if(folderId==null) folderId = ReferenceBook.MAIN_ROOT_ID;
 				getParams().put("folderId", folderId);
 			}
+			pages = dsimpl.innerOpen(con,params,cursorId,session);
+			response.recordCount = dsimpl.getRecordCount();
 			
-			pages = ((DataSourceImpl)ds).innerOpen(con,params,cursorId,session);
 			if(pages!=null) {
 				response.pages = new ArrayList<>(pages.size());
 				for (DataPage dp : pages) {
@@ -142,6 +149,14 @@ public class CommandOpenReferenceView  extends Command {
 	private Map<String, Object> getParams() {
 		if(params==null) params = new HashMap<String, Object>();
 		return params;
+	}
+
+	public void setPageSize(int maxSizeDataPage) {
+		pageSize = maxSizeDataPage;
+	}
+
+	public void setSorting(List<SortAttribute> sorting) {
+		this.sorting = sorting;
 	}
 	
 }

@@ -59,6 +59,7 @@ public class DataSourceImpl implements DataSource {
 	private ViewImpl view;
 	private boolean pub;
 	private String name;
+	private int recordCount;
 
 	public DataSourceImpl(ReferenceBook ref, View view, Date actualDate) {
 		id = ref.getMetaData().getId()+"."+view.getName();
@@ -316,6 +317,7 @@ public class DataSourceImpl implements DataSource {
 		if(dbinf!=null) con = dbinf.connect();
 		
 		try{
+			recordCount = 0;
 			String masterTable=null;
 			// prepare
 			if (statement == null) {
@@ -351,8 +353,9 @@ public class DataSourceImpl implements DataSource {
 			int pcount = 0;
 			try(ResultSet rs = statementCount.executeQuery()) {
 				rs.next();
-				int crecords = rs.getInt(1);
-				pcount = crecords/sizeDataPage+(crecords%sizeDataPage!=0?1:0);
+				recordCount = rs.getInt(1);
+				
+				pcount = recordCount/sizeDataPage+(recordCount%sizeDataPage!=0?1:0);
 			}
 			if(pcount==0) return null;
 			
@@ -398,7 +401,7 @@ public class DataSourceImpl implements DataSource {
 			String token = parser.nextToken();
 			if(token.startsWith(":")) {
 				String pname = token.substring(1);
-				if(!params.containsKey(pname))
+				if(params==null || !params.containsKey(pname))
 					throw new ExecuteException("SQLParamNotFound",dsId+"."+pname);
 				inParams.add(pname);
 				sb.append("?");
@@ -491,6 +494,21 @@ public class DataSourceImpl implements DataSource {
 	@Override
 	public void stop() {
 		notSupportedOnServer();
+	}
+
+	@Override
+	public void close() {
+		notSupportedOnServer();
+	}
+
+	@Override
+	public boolean isOpen() {
+		notSupportedOnServer();
+		return false;
+	}
+
+	public int getRecordCount() {
+		return recordCount;
 	}
 
 	

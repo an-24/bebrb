@@ -69,7 +69,7 @@ public abstract class Command {
 			return message;
 		}
 		public String getMessageForUser() {
-			return messageForUser;
+			return messageForUser!=null?messageForUser:message;
 		}
 	}
 	

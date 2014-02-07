@@ -65,6 +65,17 @@ public interface DataSource extends BaseDataSet {
 	public void stop();
 	
 	/**
+	 * Закрывает источник
+	 */
+	public void close();
+	
+	/**
+	 * Тест на то, чтои сточник открыт 
+	 * @return true. если источник открыт
+	 */
+	public boolean isOpen();
+	
+	/**
 	 * @return максимальный размер пакета с данными
 	 */
 	public int getMaxSizeDataPage();
