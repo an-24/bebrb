@@ -104,7 +104,7 @@ public class DataPageImpl implements DataPage {
 	}
 
 	@Override
-	public List<Record> getRecords() throws Exception {
+	public List<Record> getRecords() {
 		notSupportedOnServer();
 		return null;
 	}

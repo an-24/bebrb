@@ -21,11 +21,10 @@ public interface DataPage {
 	public int getSize();
 	
 	/**
-	 * Список записей, полученных пакетом. Если
-	 * записи еще не получены, то осуществляется попытка их получения  
+	 * Список записей, полученных пакетом.  
 	 * @return не может быть null
 	 */
-	public List<Record> getRecords() throws Exception;
+	public List<Record> getRecords();
 	
 	/**
 	 * Тест на последний пакет в источнике данных
