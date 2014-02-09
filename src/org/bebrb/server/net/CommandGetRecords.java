@@ -9,7 +9,6 @@ import org.bebrb.data.DataPage;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.data.DataPageImpl;
 import org.bebrb.server.utils.CopyInDepth;
-import org.bebrb.server.utils.NoCopy;
 import org.bebrb.server.utils.ReflectUtils;
 
 import com.google.gson.Gson;
@@ -63,8 +62,14 @@ public class CommandGetRecords extends Command {
 		writeToOutputStream(out, gson.toJson(response));
 	}
 
-	class Response extends Command.Response {
+	public class Response extends Command.Response {
 		@CopyInDepth
 		List<CommandOpenDataSource.Page> pages;
+
+		public List<CommandOpenDataSource.Page> getPages() {
+			return pages;
+		}
+		
+		
 	}
 }

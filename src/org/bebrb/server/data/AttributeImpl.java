@@ -124,5 +124,10 @@ public class AttributeImpl implements Attribute {
 		return null;
 		
 	}
+
+	@Override
+	public int getFieldNo() {
+		throw new RuntimeException("Not supported on server-side");
+	}
 	
 }

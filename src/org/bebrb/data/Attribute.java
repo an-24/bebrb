@@ -75,4 +75,10 @@ public interface Attribute {
 	 */
 	public int getMaxSizeChar();
 	
+	/**
+	 * Return physical number a field 
+	 * @return 0 to field count-1 
+	 */
+	public int getFieldNo();
+	
 }
