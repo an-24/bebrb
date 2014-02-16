@@ -12,6 +12,7 @@ import org.bebrb.data.DataSource;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.data.DataPageImpl;
 import org.bebrb.server.data.DataSourceImpl;
+import org.bebrb.server.data.DataSourceImpl.OpenedDataSet;
 import org.bebrb.server.data.DataSourceImpl.SortAttribute;
 import org.bebrb.server.utils.CopyInDepth;
 import org.bebrb.server.utils.NoCopy;
@@ -49,16 +50,13 @@ public class CommandOpenDataSource extends Command {
 		if(!ds.isPublished())
 			throw new ExecuteException("DatasourceNotPublished",id);
 		boolean lazy = ds.isLazy();
-		//id cursor
-		BigInteger cursorId = ((DataSourceImpl)ds).newCursorId();
 		// execute
 		DataSourceImpl dsimpl = ((DataSourceImpl)ds);
 		List<DataPage> pages;
 		try(Connection con = dsimpl.getConnection(session)) {
-			if(pageSize!=null) dsimpl.setMaxSizeDataPage(pageSize);
-			if(sorting!=null) dsimpl.setSortedAttributes(sorting);
-			pages = dsimpl.innerOpen(con,params,cursorId,session);
-			response.recordCount = dsimpl.getRecordCount();
+			OpenedDataSet rs = dsimpl.innerOpen(con,params,session,sorting,pageSize!=null?pageSize:-1);
+			pages = rs.getPages();
+			response.recordCount = rs.getRecordCount();
 			if(pages!=null) {
 				response.pages = new ArrayList<>(pages.size());
 				for (DataPage dp : pages) {
@@ -76,11 +74,11 @@ public class CommandOpenDataSource extends Command {
 					page.size = dp.getSize();
 				}
 			}
-		};
-		//id cursor & put in cache
-		if(lazy) {
-			session.getDatasetCache().put(cursorId, pages);
-			response.cursorId = cursorId.toString();
+			//id cursor & put in cache
+			if(lazy) {
+				session.getDatasetCache().put(rs.getCursorId(), pages);
+				response.cursorId = rs.getCursorId().toString();
+			};
 		};
 		Gson gson = CommandFactory.createGson();
 		writeToOutputStream(out, gson.toJson(response));

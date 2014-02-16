@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.xml.bind.DatatypeConverter;
+
 import org.bebrb.data.Attribute;
 import org.bebrb.data.DataPage;
 import org.bebrb.data.DataSource;
@@ -48,18 +49,17 @@ public class DataSourceImpl implements DataSource {
 	private String sqlText = null;
 	// TODO from cache
 	private Date actualCacheDate = null;
-	
-	private PreparedStatement statement;
-	private PreparedStatement statementCount;
-	private String inSQL;
+	// parse sql & params
+	private String inSQL = null;
 	private List<String> inParams = new ArrayList<>();
 	private DatabaseInfo dbinf = null;
-	
-	private List<SortAttribute> sortedAttributes;
 	private ViewImpl view;
 	private boolean pub;
 	private String name;
-	private int recordCount;
+	
+	private PreparedStatement statementCount;
+	// mutex for statementCount
+	private Object csStatementCount = new Object();
 
 	public DataSourceImpl(ReferenceBook ref, View view, Date actualDate) {
 		id = ref.getMetaData().getId()+"."+view.getName();
@@ -231,10 +231,6 @@ public class DataSourceImpl implements DataSource {
 		return sizeDataPage ;
 	}
 
-	public void setMaxSizeDataPage(int sizeDataPage) {
-		this.sizeDataPage = sizeDataPage;
-	}
-
 	@Override
 	public Date getActualDate() {
 		return (cc != CacheControl.IsModified) ? null : actualCacheDate;
@@ -311,71 +307,88 @@ public class DataSourceImpl implements DataSource {
 		notSupportedOnServer();
 	}
 	
-	public List<DataPage> innerOpen(Connection con, Map<String, Object> params, BigInteger cursorId, SessionContextImpl session)
+	public OpenedDataSet innerOpen(Connection con, Map<String, Object> params,  
+			SessionContextImpl session, final List<SortAttribute> sortedAttributes, int pageSize)
 			throws Exception {
 		
 		if(dbinf!=null) con = dbinf.connect();
 		
+		if(pageSize<0) pageSize = sizeDataPage; 
+		
+		OpenedDataSet result = new OpenedDataSet();
+		result.cursorId = newCursorId();
 		try{
-			recordCount = 0;
 			String masterTable=null;
-			// prepare
-			if (statement == null) {
+			// parse
+			if(inSQL==null) {
 				inSQL = parse(id,sqlText,params,inParams);
 				statementCount = con.prepareStatement("select count(*) from("+inSQL+") as A");
-				// for hierarchy reference book. Request main table if reference book
-				boolean hierarchyRBook = view!=null && view.getReferenceBook().getMetaData().getReferenceType()==ReferenceType.Hierarchy;
-				if(hierarchyRBook) {
-					masterTable = ((ReferenceBookMetaDataImpl)view.getReferenceBook().getMetaData()).getMasterTable();
-					// try request db
-					if(masterTable==null) {
-						String keyName = view.getReferenceBook().getMetaData().getKey().getName();
-						try(PreparedStatement statementTmp = con.prepareStatement("select * from("+inSQL+") as A")){
-							ResultSetMetaData rsmeta = statementTmp.getMetaData();
-							masterTable = rsmeta.getTableName(DBUtils.indexOfFieldByName(rsmeta, keyName));
-						}; 
-					}
-				}
-				if(hierarchyRBook) {
-					statement = con.prepareStatement(((ReferenceBookImpl)view.getReferenceBook()).makeHierarchySQL(view, masterTable));
-				} else
-					if(sortedAttributes!=null) statement = con.prepareStatement("select * from("+inSQL+") as A order by "+orderBy("A",sortedAttributes));
-										  else statement = con.prepareStatement(inSQL);
-				
 			}
-			// params
+			// prepare
+			PreparedStatement statement;
+			// for hierarchy reference book. Request main table if reference book
+			boolean hierarchyRBook = view!=null && view.getReferenceBook().getMetaData().getReferenceType()==ReferenceType.Hierarchy;
+			if(hierarchyRBook) {
+				masterTable = ((ReferenceBookMetaDataImpl)view.getReferenceBook().getMetaData()).getMasterTable();
+				// try request db
+				if(masterTable==null) {
+					String keyName = view.getReferenceBook().getMetaData().getKey().getName();
+					try(PreparedStatement statementTmp = con.prepareStatement("select * from("+inSQL+") as A")){
+						ResultSetMetaData rsmeta = statementTmp.getMetaData();
+						masterTable = rsmeta.getTableName(DBUtils.indexOfFieldByName(rsmeta, keyName));
+					}; 
+				}
+			}
+			if(hierarchyRBook) {
+				statement = con.prepareStatement(((ReferenceBookImpl)view.getReferenceBook()).makeHierarchySQL(view, masterTable,sortedAttributes));
+			} else
+				if(sortedAttributes!=null && sortedAttributes.size()>0) 
+						 statement = con.prepareStatement("select * from("+inSQL+") as A order by "+orderBy("A",sortedAttributes));
+					else statement = con.prepareStatement(inSQL);
+			
+			// pages count
+			int pcount = 0;
+			// warning! potential bottleneck
+			synchronized (csStatementCount) {
+				// params
+				int i = 1;
+				for (String pname : inParams) {
+					statementCount.setObject(i++, params.get(pname));
+				}
+				try(ResultSet rs = statementCount.executeQuery()) {
+					rs.next();
+					result.recordCount = rs.getInt(1);
+					pcount = result.recordCount/pageSize+(result.recordCount%pageSize!=0?1:0);
+				}
+				if(pcount==0) return null;
+			}
+			
+			// main query
 			int i = 1;
 			for (String pname : inParams) {
 				statement.setObject(i++, params.get(pname));
-				statementCount.setObject(i++, params.get(pname));
 			}
-			// pages count
-			int pcount = 0;
-			try(ResultSet rs = statementCount.executeQuery()) {
-				rs.next();
-				recordCount = rs.getInt(1);
-				
-				pcount = recordCount/sizeDataPage+(recordCount%sizeDataPage!=0?1:0);
-			}
-			if(pcount==0) return null;
-			
 			List<DataPage> pages = new ArrayList<DataPage>(pcount);
 			// fetch data
 			ResultSet rs = statement.executeQuery();
 			try {
 				for (int pIdx = 0; pIdx < pcount; pIdx++) {
 					if(dbinf!=null)
-						pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, 
+						pages.add(new DataPageImpl(result.cursorId,session,rs,this,lazy, 
 								pIdx==(pcount-1),dbinf.isIdentCaseSensitive())); 
 					else
-						pages.add(new DataPageImpl(cursorId,session,rs,this,lazy, 
+						pages.add(new DataPageImpl(result.cursorId,session,rs,this,lazy, 
 								pIdx==(pcount-1)));
 				}
 			} finally {
-				if(!lazy) rs.close();
+				if(!lazy) {
+					rs.close();
+					statement.close();
+				}
 			}
 			
-			return pages;
+			result.pages = pages;
+			return result;
 			
 		} finally {
 			if(dbinf!=null) con.close();			
@@ -384,12 +397,15 @@ public class DataSourceImpl implements DataSource {
 	
 	public void reset(){
 		try {
-			if(statement!=null) statement.close();
 			if(statementCount!=null) statementCount.close();
-			statement = null;
 			statementCount = null;
 		} catch (SQLException e) {
 		}
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		reset();
 	}
 
 	public static String parse(String dsId, String sql, Map<String, Object> params,List<String> inParams)
@@ -410,7 +426,7 @@ public class DataSourceImpl implements DataSource {
 		return sb.toString();
 	}
 
-	public BigInteger newCursorId() {
+	private BigInteger newCursorId() {
 		if(isLazy()) {
 			byte[] code = new byte[16];
 			new SecureRandom().nextBytes(code);
@@ -425,15 +441,6 @@ public class DataSourceImpl implements DataSource {
 
 	public String getSqlText() {
 		return sqlText;
-	}
-
-	public List<SortAttribute> getSortedAttributes() {
-		return sortedAttributes;
-	}
-
-	public void setSortedAttributes(List<SortAttribute> sortedAttributes) {
-		this.sortedAttributes = sortedAttributes;
-		reset();
 	}
 
 	public static String orderBy(String alias,
@@ -507,9 +514,19 @@ public class DataSourceImpl implements DataSource {
 		return false;
 	}
 
-	public int getRecordCount() {
-		return recordCount;
+	public class OpenedDataSet {
+		BigInteger cursorId;
+		List<DataPage> pages;
+		int recordCount;
+		
+		public List<DataPage> getPages() {
+			return pages;
+		}
+		public int getRecordCount() {
+			return recordCount;
+		}
+		public BigInteger getCursorId() {
+			return cursorId;
+		}
 	}
-
-	
 }

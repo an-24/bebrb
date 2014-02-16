@@ -17,6 +17,7 @@ import org.bebrb.reference.View;
 import org.bebrb.server.SessionContextImpl;
 import org.bebrb.server.data.DataPageImpl;
 import org.bebrb.server.data.DataSourceImpl;
+import org.bebrb.server.data.DataSourceImpl.OpenedDataSet;
 import org.bebrb.server.data.DataSourceImpl.SortAttribute;
 import org.bebrb.server.utils.ReflectUtils;
 
@@ -98,17 +99,12 @@ public class CommandOpenReferenceView  extends Command {
 		DataSource ds = view.getDataSource();
 		boolean lazy = ds.isLazy();
 		DataSourceImpl dsimpl = ((DataSourceImpl)ds);
-		//id cursor
-		BigInteger cursorId = dsimpl.newCursorId();
 		// execute
 		List<DataPage> pages;
 		try(Connection con = dsimpl.getConnection(session)) {
 			
 			dsimpl.setReferenceBookView(view);
 					
-			if(pageSize!=null) dsimpl.setMaxSizeDataPage(pageSize);
-			if(sorting!=null) dsimpl.setSortedAttributes(sorting);
-			
 			if(ref.getMetaData().isHistoryAvailable()) {
 				getParams().put("viewDate", viewDate==null?new Date():viewDate);
 			}
@@ -116,8 +112,9 @@ public class CommandOpenReferenceView  extends Command {
 				if(folderId==null) folderId = ReferenceBook.MAIN_ROOT_ID;
 				getParams().put("folderId", folderId);
 			}
-			pages = dsimpl.innerOpen(con,params,cursorId,session);
-			response.recordCount = dsimpl.getRecordCount();
+			OpenedDataSet rs = dsimpl.innerOpen(con,params,session,sorting,pageSize!=null?pageSize:-1);
+			pages = rs.getPages();
+			response.recordCount = rs.getRecordCount();
 			
 			if(pages!=null) {
 				response.pages = new ArrayList<>(pages.size());
@@ -136,11 +133,11 @@ public class CommandOpenReferenceView  extends Command {
 					page.size = dp.getSize();
 				}
 			}
-		};
-		//id cursor & put in cache
-		if(pages!=null && lazy) {
-			session.getDatasetCache().put(cursorId, pages);
-			response.cursorId = cursorId.toString();
+			//id cursor & put in cache
+			if(pages!=null && lazy) {
+				session.getDatasetCache().put(rs.getCursorId(), pages);
+				response.cursorId = rs.getCursorId().toString();
+			};
 		};
 		Gson gson = CommandFactory.createGson();
 		writeToOutputStream(out, gson.toJson(response));

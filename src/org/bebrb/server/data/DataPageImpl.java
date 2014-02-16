@@ -90,6 +90,7 @@ public class DataPageImpl implements DataPage {
 		if (ds.isLazy() && eof) {
 			try {
 				rs.close();
+				rs.getStatement().close();
 				rs = null;
 			} catch (SQLException e) {
 				ApplicationContextImpl.getLogger().info(

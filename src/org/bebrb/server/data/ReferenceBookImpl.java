@@ -110,7 +110,7 @@ public class ReferenceBookImpl implements ReferenceBook {
 		return dbinf!=null?dbinf.connect():session.getConnection();
 	}
 	
-	public String makeHierarchySQL(ViewImpl view, String masterTable) throws Exception {
+	public String makeHierarchySQL(ViewImpl view, String masterTable,List<SortAttribute> sortedlist) throws Exception {
 		StringBuffer sb = new StringBuffer();
 		sb.append("select A.*, (select count(*) from ").
 		   append(masterTable).append(" MT ").
@@ -121,7 +121,6 @@ public class ReferenceBookImpl implements ReferenceBook {
 		   append("order by A.").append(meta.getAttrFolder().getName()).
 		   append(" ").append(meta.getOrderFolder());
 		DataSourceImpl ds = (DataSourceImpl) view.getDataSource();
-		List<SortAttribute> sortedlist = ds.getSortedAttributes();
 		if(sortedlist!=null) {
 			sb.append(",").append(ds.orderBy("A", sortedlist));
 		}
